@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISTQB Exam Simulator — QR</title>
+<title>ISTQB® Exam Simulator — QR</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
+  sup.tm{font-size:.5em;vertical-align:super;line-height:0;font-weight:600;}
   body{
     font-family:'Nunito',sans-serif;
     min-height:100vh;
@@ -56,20 +57,21 @@
 </head>
 <body>
 <div class="card">
-  <h1>ISTQB Exam Simulator</h1>
+  <h1>ISTQB<sup class="tm">®</sup> Exam Simulator</h1>
   <p class="sub">Scan to open the quiz hub on your phone</p>
   <div id="qr"></div>
   <a class="url" id="url-link" href="#" target="_blank" rel="noopener"></a>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
-  const URL = 'https://exactpro.github.io/istqb-quiz-hub/';
-  document.getElementById('url-link').href = URL;
-  document.getElementById('url-link').textContent = URL;
-  QRCode.toCanvas(URL, { width: 320, margin: 1, errorCorrectionLevel: 'M' }, (err, canvas) => {
-    if (err) { document.getElementById('qr').textContent = 'QR error: ' + err.message; return; }
-    document.getElementById('qr').appendChild(canvas);
-  });
+  const TARGET = 'https://exactpro.github.io/istqb-quiz-hub/';
+  document.getElementById('url-link').href = TARGET;
+  document.getElementById('url-link').textContent = TARGET;
+  const img = document.createElement('img');
+  img.alt = 'QR code for ' + TARGET;
+  img.width = 320; img.height = 320;
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data=' + encodeURIComponent(TARGET);
+  img.onerror = () => { document.getElementById('qr').textContent = 'Failed to load QR image. Check network connection.'; };
+  document.getElementById('qr').appendChild(img);
 </script>
 </body>
 </html>
