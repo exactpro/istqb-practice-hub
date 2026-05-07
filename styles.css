@@ -332,6 +332,25 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 }
 .reg-field input:focus{border-color:var(--blue);}
 .reg-field input.error{border-color:var(--red);}
+.reg-field select{
+  padding:12px 14px;
+  border:2px solid var(--border);
+  border-radius:12px;
+  background:var(--surface2);
+  color:var(--text1);
+  font-family:'Nunito Sans',sans-serif;
+  font-size:15px;
+  outline:none;
+  cursor:pointer;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M1 1l5 5 5-5'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:38px;
+}
+.reg-field select:focus{border-color:var(--blue);}
+.reg-field select.error{border-color:var(--red);}
+.reg-modal{max-height:90vh;overflow-y:auto;}
 .reg-error-msg{
   font-size:12px;color:var(--red);
   margin-top:-8px;margin-bottom:4px;

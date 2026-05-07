@@ -180,10 +180,21 @@ function doSubmit(){
 //   ENTRY_NAME   → 'entry.1166241678'
 //   ENTRY_EMAIL  → 'entry.1981449668'
 // ─────────────────────────────────────────────────────────────────────────────
-var FORM_ACTION  = 'https://docs.google.com/forms/d/e/1FAIpQLSfUA3UjJ_D34yuwyXD4hB_D7NIovhyJBnsg5wp2_1Q89ODVYA/formResponse';
-var ENTRY_NAME   = 'entry.1166241678';
-var ENTRY_EMAIL  = 'entry.1981449668';
-var ENTRY_ID     = 'entry.1288529537';
+var FORM_ACTION      = 'https://docs.google.com/forms/d/e/1FAIpQLSfUA3UjJ_D34yuwyXD4hB_D7NIovhyJBnsg5wp2_1Q89ODVYA/formResponse';
+var ENTRY_NAME       = 'entry.1166241678';
+var ENTRY_EMAIL      = 'entry.1981449668';
+var ENTRY_ID         = 'entry.1288529537';
+var ENTRY_COMPANY    = 'entry.194206428';
+var ENTRY_COURSE     = 'entry.306410715';
+var ENTRY_ACTIVITY   = 'entry.603643379';
+var ENTRY_FAMILY     = 'entry.13800071';
+var ENTRY_PACK_ROUND = 'entry.1466670342';
+var ENTRY_CORRECT    = 'entry.619171338';
+var ENTRY_WRONG      = 'entry.25304628';
+var ENTRY_UNANSWERED = 'entry.1279254432';
+var ENTRY_TOTAL      = 'entry.351831006';
+var ENTRY_SCORE_PCT  = 'entry.703495371';
+var ENTRY_VERDICT    = 'entry.239573195';
 
 function generateUserId(){
   var t = Date.now().toString(36).toUpperCase();
@@ -192,20 +203,24 @@ function generateUserId(){
 }
 
 function submitRegistration(){
-  var nameEl  = document.getElementById('reg-name');
-  var emailEl = document.getElementById('reg-email');
-  var nameErr  = document.getElementById('reg-name-error');
-  var emailErr = document.getElementById('reg-email-error');
-  var btn      = document.getElementById('reg-submit-btn');
+  var nameEl    = document.getElementById('reg-name');
+  var emailEl   = document.getElementById('reg-email');
+  var companyEl = document.getElementById('reg-company');
+  var courseEl  = document.getElementById('reg-course');
+  var nameErr    = document.getElementById('reg-name-error');
+  var emailErr   = document.getElementById('reg-email-error');
+  var companyErr = document.getElementById('reg-company-error');
+  var courseErr  = document.getElementById('reg-course-error');
+  var btn        = document.getElementById('reg-submit-btn');
 
   // Reset errors
-  nameEl.classList.remove('error');
-  emailEl.classList.remove('error');
-  nameErr.classList.remove('visible');
-  emailErr.classList.remove('visible');
+  [nameEl, emailEl, companyEl, courseEl].forEach(function(el){ el.classList.remove('error'); });
+  [nameErr, emailErr, companyErr, courseErr].forEach(function(el){ el.classList.remove('visible'); });
 
-  var name  = nameEl.value.trim();
-  var email = emailEl.value.trim();
+  var name    = nameEl.value.trim();
+  var email   = emailEl.value.trim();
+  var company = companyEl.value.trim();
+  var course  = courseEl.value;
   var valid = true;
 
   if(!name){
@@ -218,17 +233,27 @@ function submitRegistration(){
     emailErr.classList.add('visible');
     valid = false;
   }
+  if(!company){
+    companyEl.classList.add('error');
+    companyErr.classList.add('visible');
+    valid = false;
+  }
+  if(!course){
+    courseEl.classList.add('error');
+    courseErr.classList.add('visible');
+    valid = false;
+  }
   if(!valid) return;
 
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
   var userId = generateUserId();
+  var user = { name: name, email: email, company: company, course: course, id: userId };
 
-  // Submit to Google Forms via hidden iframe (no page redirect)
-  submitToGoogleForms(name, email, userId);
-  saveUser({ name: name, email: email, id: userId });
+  saveUser(user);
   updateProfileButton();
+  submitRegistrationToForm(user);
 
   setTimeout(function(){
     showRegistrationSuccess(userId);
@@ -279,9 +304,9 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-function submitToGoogleForms(name, email, userId){
+function _postFormFields(fields){
   try {
-    var frameName = 'gform-' + Date.now();
+    var frameName = 'gform-' + Date.now() + '-' + Math.floor(Math.random()*1000);
     var iframe = document.createElement('iframe');
     iframe.setAttribute('name', frameName);
     iframe.name = frameName;
@@ -293,33 +318,87 @@ function submitToGoogleForms(name, email, userId){
     formEl.action = FORM_ACTION;
     formEl.target = frameName;
 
-    var fields = {};
-    fields[ENTRY_NAME]  = name;
-    fields[ENTRY_EMAIL] = email;
-    if (userId && ENTRY_ID && ENTRY_ID.indexOf('PASTE_ID_HERE') === -1) {
-      fields[ENTRY_ID] = userId;
-    }
-
-    for(var key in fields){
+    for (var key in fields){
+      if (!key || key.indexOf('PASTE_') !== -1) continue;
+      var v = fields[key];
+      if (v === undefined || v === null || v === '') continue;
       var input = document.createElement('input');
       input.type  = 'hidden';
       input.name  = key;
-      input.value = fields[key];
+      input.value = String(v);
       formEl.appendChild(input);
     }
 
     document.body.appendChild(formEl);
     formEl.submit();
 
-    // Clean up after submission
     setTimeout(function(){
-      if(formEl.parentNode) formEl.parentNode.removeChild(formEl);
-      if(iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      if (formEl.parentNode) formEl.parentNode.removeChild(formEl);
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
     }, 3000);
   } catch(e){
-    // Silently fail — don't block the user from seeing results
     console.warn('Form submission failed:', e);
   }
+}
+
+function submitRegistrationToForm(u){
+  if (!u) return;
+  var fields = {};
+  fields[ENTRY_NAME]     = u.name || '';
+  fields[ENTRY_EMAIL]    = u.email || '';
+  fields[ENTRY_ID]       = u.id || '';
+  fields[ENTRY_COMPANY]  = u.company || '';
+  fields[ENTRY_COURSE]   = u.course || '';
+  fields[ENTRY_ACTIVITY] = 'Registration';
+  _postFormFields(fields);
+}
+
+function attemptFormFields(att){
+  var u = loadUser() || {};
+  var fields = {};
+  fields[ENTRY_NAME]    = u.name || '';
+  fields[ENTRY_EMAIL]   = u.email || '';
+  fields[ENTRY_ID]      = u.id || '';
+  fields[ENTRY_COMPANY] = u.company || '';
+  fields[ENTRY_COURSE]  = u.course || '';
+
+  if (att.type === 'exam'){
+    fields[ENTRY_ACTIVITY]   = 'Exam';
+    fields[ENTRY_FAMILY]     = att.mode === 'ctai' ? 'CT-AI' : 'CT-GenAI';
+    fields[ENTRY_PACK_ROUND] = 'Pack #' + att.pack;
+    fields[ENTRY_CORRECT]    = att.correct;
+    fields[ENTRY_WRONG]      = att.wrong;
+    fields[ENTRY_UNANSWERED] = att.unanswered;
+    fields[ENTRY_TOTAL]      = att.total;
+    fields[ENTRY_SCORE_PCT]  = att.pct;
+    fields[ENTRY_VERDICT]    = att.passed ? 'PASSED' : 'FAILED';
+  } else if (att.type === 'blitz'){
+    fields[ENTRY_ACTIVITY]   = 'Blitz';
+    fields[ENTRY_FAMILY]     = poolLabel(att.pool);
+    fields[ENTRY_PACK_ROUND] = '10Q round';
+    fields[ENTRY_CORRECT]    = att.correct;
+    fields[ENTRY_WRONG]      = att.total - att.correct;
+    fields[ENTRY_UNANSWERED] = 0;
+    fields[ENTRY_TOTAL]      = att.total;
+    fields[ENTRY_SCORE_PCT]  = att.pct;
+    fields[ENTRY_VERDICT]    = att.passed ? 'PASSED' : 'FAILED';
+  } else if (att.type === 'glossary'){
+    fields[ENTRY_ACTIVITY]   = 'Glossary';
+    fields[ENTRY_FAMILY]     = poolLabel(att.pool);
+    fields[ENTRY_PACK_ROUND] = '5 rounds';
+    fields[ENTRY_CORRECT]    = att.correct;
+    fields[ENTRY_WRONG]      = Math.max(0, (att.total || 0) - (att.correct || 0));
+    fields[ENTRY_UNANSWERED] = 0;
+    fields[ENTRY_TOTAL]      = att.total;
+    fields[ENTRY_SCORE_PCT]  = att.pct;
+    fields[ENTRY_VERDICT]    = '';
+  }
+  return fields;
+}
+
+function submitAttemptToForm(att){
+  if (!att) return;
+  _postFormFields(attemptFormFields(att));
 }
 
 function showResults(){
@@ -967,6 +1046,7 @@ function saveAttempt(att){
     if (arr.length > 100) arr = arr.slice(0, 100);
     localStorage.setItem(LS_ATTEMPTS, JSON.stringify(arr));
     lastAttemptId = att.id;
+    submitAttemptToForm(att);
     return att.id;
   } catch(e){ console.warn('Save attempt failed:', e); return null; }
 }

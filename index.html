@@ -377,17 +377,32 @@
   <div class="reg-modal">
     <div class="reg-modal-icon">🎯</div>
     <h2>Before you start</h2>
-    <p class="reg-sub">Leave your name and email so we can send you your detailed results with full answer explanations after each exam.</p>
+    <p class="reg-sub">Tell us a bit about yourself so we can track your progress and follow up with detailed results after each exam.</p>
     <div class="reg-field">
-      <label for="reg-name">Full Name</label>
+      <label for="reg-name">Name and Surname</label>
       <input type="text" id="reg-name" placeholder="e.g. Jane Smith" autocomplete="name" />
     </div>
-    <div class="reg-error-msg" id="reg-name-error">Please enter your full name.</div>
+    <div class="reg-error-msg" id="reg-name-error">Please enter your name and surname.</div>
     <div class="reg-field">
-      <label for="reg-email">Email Address</label>
+      <label for="reg-email">Email</label>
       <input type="email" id="reg-email" placeholder="e.g. jane@email.com" autocomplete="email" />
     </div>
     <div class="reg-error-msg" id="reg-email-error">Please enter a valid email address.</div>
+    <div class="reg-field">
+      <label for="reg-company">Company or University</label>
+      <input type="text" id="reg-company" placeholder="e.g. Exactpro" autocomplete="organization" />
+    </div>
+    <div class="reg-error-msg" id="reg-company-error">Please enter your company or university.</div>
+    <div class="reg-field">
+      <label for="reg-course">Course interest</label>
+      <select id="reg-course">
+        <option value="">— select a course —</option>
+        <option value="CTFL">CTFL — Foundation Level</option>
+        <option value="CT-AI">CT-AI — AI Testing</option>
+        <option value="CT-GenAI">CT-GenAI — Generative AI</option>
+      </select>
+    </div>
+    <div class="reg-error-msg" id="reg-course-error">Please pick a course.</div>
     <button class="reg-submit-btn" id="reg-submit-btn" onclick="submitRegistration()">Continue →</button>
     <p class="reg-privacy">🔒 Your details are kept private and used only to track your usage of the quiz hub.</p>
   </div>
