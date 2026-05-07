@@ -564,6 +564,13 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 }
 .results-bottom-actions .btn-action{min-width:200px;}
 
+.results-actions-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-top:6px;
+}
+.results-actions-grid .btn-action{width:100%;}
+
 /* ── PRINT AREA (hidden on screen) ── */
 #print-area{display:none;}
 

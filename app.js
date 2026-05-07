@@ -957,6 +957,7 @@ function loadAttempts(){
   try { return JSON.parse(localStorage.getItem(LS_ATTEMPTS) || '[]'); }
   catch(e){ return []; }
 }
+var lastAttemptId = null;
 function saveAttempt(att){
   try {
     var arr = loadAttempts();
@@ -965,7 +966,9 @@ function saveAttempt(att){
     arr.unshift(att);
     if (arr.length > 100) arr = arr.slice(0, 100);
     localStorage.setItem(LS_ATTEMPTS, JSON.stringify(arr));
-  } catch(e){ console.warn('Save attempt failed:', e); }
+    lastAttemptId = att.id;
+    return att.id;
+  } catch(e){ console.warn('Save attempt failed:', e); return null; }
 }
 function getInitials(name){
   if(!name) return '?';
@@ -1075,6 +1078,13 @@ function findAttempt(id){
   var arr = loadAttempts();
   for (var i=0; i<arr.length; i++) { if (arr[i].id === id) return arr[i]; }
   return null;
+}
+
+function viewLastAttempt(type){
+  if (!lastAttemptId) return;
+  if (type === 'blitz') reopenBlitzAttempt(lastAttemptId);
+  else if (type === 'glossary') reopenGlossaryAttempt(lastAttemptId);
+  else if (type === 'exam') reopenAttempt(lastAttemptId);
 }
 
 function poolLabel(pool){

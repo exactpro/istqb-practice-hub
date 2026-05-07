@@ -162,9 +162,11 @@
     <div class="gloss-final-pct" id="gloss-final-pct">0%</div>
     <div class="gloss-final-detail" id="gloss-final-detail"></div>
   </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <button class="btn-action btn-blue" onclick="startGlossary()" style="flex:1">Play again</button>
-    <button class="btn-action btn-gray" onclick="showScreen('screen-hub')" style="flex:1">Back to hub</button>
+  <div class="results-actions-grid">
+    <button class="btn-action btn-blue" onclick="viewLastAttempt('glossary')">View details</button>
+    <button class="btn-action btn-blue" onclick="startGlossary()">Play again</button>
+    <button class="btn-action btn-gray" onclick="openProfile()">Profile</button>
+    <button class="btn-action btn-gray" onclick="showScreen('screen-hub')">Back to hub</button>
   </div>
 </div>
 
@@ -193,9 +195,11 @@
     <div class="blitz-final-pct" id="blitz-final-pct">0%</div>
     <div class="blitz-final-detail" id="blitz-final-detail"></div>
   </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <button class="btn-action btn-blue" onclick="startBlitz(blitzCurrentPool)" style="flex:1">Play again</button>
-    <button class="btn-action btn-gray" onclick="showScreen('screen-hub')" style="flex:1">Back to hub</button>
+  <div class="results-actions-grid">
+    <button class="btn-action btn-blue" onclick="viewLastAttempt('blitz')">View details</button>
+    <button class="btn-action btn-blue" onclick="startBlitz(blitzCurrentPool)">Play again</button>
+    <button class="btn-action btn-gray" onclick="openProfile()">Profile</button>
+    <button class="btn-action btn-gray" onclick="showScreen('screen-hub')">Back to hub</button>
   </div>
 </div>
 
@@ -256,6 +260,7 @@
     </select>
     <button class="btn-action btn-blue" onclick="startExam(currentPack)">Retake exam</button>
     <button class="btn-action btn-blue" onclick="downloadResultsPdf()">⬇ Download PDF</button>
+    <button class="btn-action btn-gray" onclick="openProfile()">Profile</button>
     <button class="btn-action btn-gray" onclick="showScreen('screen-genai-home')">Back to packs</button>
     <button class="btn-action btn-gray" onclick="showScreen('screen-hub')">Hub</button>
   </div>
