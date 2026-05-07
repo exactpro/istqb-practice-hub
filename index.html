@@ -9,6 +9,7 @@
 </head>
 <body>
 <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">☀️</button>
+<button id="profile-btn" onclick="openProfile()" title="View profile">👤</button>
 
 <div id="app">
 
@@ -73,6 +74,24 @@
 
 </div>
 
+<!-- ══ PROFILE ══ -->
+<div id="screen-profile" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; Hub</button>
+    <div class="page-header-title">Your profile</div>
+  </div>
+  <div class="profile-card">
+    <div class="profile-avatar" id="profile-avatar">?</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profile-name">Guest</div>
+      <div class="profile-email" id="profile-email"></div>
+      <div class="profile-userid" id="profile-userid"></div>
+    </div>
+  </div>
+  <div class="hub-section-label">Past attempts</div>
+  <div id="profile-attempts"></div>
+</div>
+
 <!-- ══ GENAI HOME ══ -->
 <div id="screen-genai-home" class="screen">
   <div class="page-header">
@@ -119,13 +138,19 @@
     <span class="gloss-round-badge" id="gloss-round-badge">Round 1 of 5</span>
   </div>
   <div class="progress-bar-wrap"><div class="progress-bar-fill" id="gloss-progress" style="width:0%"></div></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
-    <div class="gloss-col-label">Terms &mdash; drag to match</div>
-    <div class="gloss-col-label">Definitions &mdash; fixed</div>
+  <div id="gloss-drag-ui">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+      <div class="gloss-col-label">Terms &mdash; drag to match</div>
+      <div class="gloss-col-label">Definitions &mdash; fixed</div>
+    </div>
+    <div class="gloss-board">
+      <div class="gloss-terms" id="gloss-terms"></div>
+      <div class="gloss-defs" id="gloss-defs"></div>
+    </div>
   </div>
-  <div class="gloss-board">
-    <div class="gloss-terms" id="gloss-terms"></div>
-    <div class="gloss-defs" id="gloss-defs"></div>
+  <div id="gloss-dd-ui">
+    <div class="gloss-col-label">Pick the matching term for each definition</div>
+    <div class="gloss-dd-list" id="gloss-dd-list"></div>
   </div>
   <div class="gloss-footer">
     <button class="btn-action btn-blue" id="gloss-next-btn" onclick="glossNextRound()" style="display:none">Next round &#8594;</button>
@@ -230,6 +255,7 @@
       <option value="unanswered">Unanswered only</option>
     </select>
     <button class="btn-action btn-blue" onclick="startExam(currentPack)">Retake exam</button>
+    <button class="btn-action btn-blue" onclick="downloadResultsPdf()">⬇ Download PDF</button>
     <button class="btn-action btn-gray" onclick="showScreen('screen-genai-home')">Back to packs</button>
     <button class="btn-action btn-gray" onclick="showScreen('screen-hub')">Hub</button>
   </div>
@@ -239,9 +265,60 @@
     <span style="font-size:13px;color:var(--text4);font-weight:600;" id="review-pos">1 / 40</span>
     <button class="btn-action btn-gray" id="btn-rv-next" onclick="reviewNav(1)">Next &#8594;</button>
   </div>
+  <div class="results-bottom-actions">
+    <button class="btn-action btn-blue" onclick="downloadResultsPdf()">⬇ Download PDF</button>
+  </div>
+</div>
+
+<!-- ══ PROFILE ══ -->
+<div id="screen-profile" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; Hub</button>
+    <div class="page-header-title">My Profile</div>
+  </div>
+  <div class="profile-card">
+    <div class="profile-avatar" id="profile-avatar">👤</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profile-name">Guest</div>
+      <div class="profile-email" id="profile-email">No email registered</div>
+      <div class="profile-userid" id="profile-userid"></div>
+    </div>
+  </div>
+  <div class="pack-section-label">My attempts</div>
+  <div id="profile-attempts"></div>
+</div>
+
+<!-- ══ BLITZ REVIEW ══ -->
+<div id="screen-blitz-review" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="openProfile()">&#8592; Profile</button>
+    <div class="page-header-title" id="blitz-review-title">Knowledge Blitz — review</div>
+  </div>
+  <div class="rv-meta" id="blitz-review-meta"></div>
+  <div id="blitz-review-list"></div>
+</div>
+
+<!-- ══ GLOSSARY REVIEW ══ -->
+<div id="screen-glossary-review" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="openProfile()">&#8592; Profile</button>
+    <div class="page-header-title" id="gloss-review-title">Glossary Practice — review</div>
+  </div>
+  <div class="rv-meta" id="gloss-review-meta"></div>
+  <div class="rv-summary" id="gloss-review-summary"></div>
+  <div class="gloss-rv-tabs" id="gloss-review-tabs"></div>
+  <div id="gloss-review-list"></div>
+  <div class="review-nav-row">
+    <button class="btn-action btn-gray" id="gloss-review-prev" onclick="glossReviewNav(-1)">&#8592; Previous</button>
+    <span style="font-size:13px;color:var(--text4);font-weight:600;" id="gloss-review-pos">Round 1 of 5</span>
+    <button class="btn-action btn-gray" id="gloss-review-next" onclick="glossReviewNav(1)">Next &#8594;</button>
+  </div>
 </div>
 
 </div>
+
+<!-- ══ PRINT AREA (only visible when printing PDF) ══ -->
+<div id="print-area" aria-hidden="true"></div>
 
 <!-- Submit modal - all answered -->
 <div class="modal-overlay" id="modal-submit-all">

@@ -183,6 +183,13 @@ function doSubmit(){
 var FORM_ACTION  = 'https://docs.google.com/forms/d/e/1FAIpQLSfUA3UjJ_D34yuwyXD4hB_D7NIovhyJBnsg5wp2_1Q89ODVYA/formResponse';
 var ENTRY_NAME   = 'entry.1166241678';
 var ENTRY_EMAIL  = 'entry.1981449668';
+var ENTRY_ID     = 'entry.1288529537';
+
+function generateUserId(){
+  var t = Date.now().toString(36).toUpperCase();
+  var r = Math.random().toString(36).slice(2, 5).toUpperCase();
+  return 'U-' + t + '-' + r;
+}
 
 function submitRegistration(){
   var nameEl  = document.getElementById('reg-name');
@@ -216,21 +223,63 @@ function submitRegistration(){
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
+  var userId = generateUserId();
+
   // Submit to Google Forms via hidden iframe (no page redirect)
-  submitToGoogleForms(name, email);
+  submitToGoogleForms(name, email, userId);
+  saveUser({ name: name, email: email, id: userId });
+  updateProfileButton();
 
   setTimeout(function(){
-    document.getElementById('modal-registration').classList.remove('open');
+    showRegistrationSuccess(userId);
     btn.disabled = false;
     btn.textContent = 'Continue →';
-  }, 900);
+  }, 600);
+}
+
+function showRegistrationSuccess(userId){
+  var modal = document.querySelector('#modal-registration .reg-modal');
+  if(!modal) return;
+  modal.innerHTML =
+    '<div class="reg-modal-icon">✅</div>' +
+    '<h2>You\'re all set!</h2>' +
+    '<p class="reg-sub">Save this ID — it\'s your unique reference if you ever need to contact us about your results.</p>' +
+    '<div class="reg-userid-box">' +
+      '<div class="reg-userid-label">Your User ID</div>' +
+      '<div class="reg-userid-value" id="reg-userid-value">' + userId + '</div>' +
+      '<button type="button" class="reg-userid-copy" onclick="copyUserId()">Copy</button>' +
+    '</div>' +
+    '<button class="reg-submit-btn" onclick="closeRegistrationModal()">Start practicing →</button>';
+}
+
+function copyUserId(){
+  var el = document.getElementById('reg-userid-value');
+  if(!el) return;
+  var txt = el.textContent;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).catch(function(){});
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+  }
+  var btn = document.querySelector('.reg-userid-copy');
+  if(btn){ var orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = orig; }, 1200); }
+}
+
+function closeRegistrationModal(){
+  document.getElementById('modal-registration').classList.remove('open');
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('modal-registration').classList.add('open');
+  updateProfileButton();
+  if (!loadUser()) {
+    document.getElementById('modal-registration').classList.add('open');
+  }
 });
 
-function submitToGoogleForms(name, email){
+function submitToGoogleForms(name, email, userId){
   try {
     var frameName = 'gform-' + Date.now();
     var iframe = document.createElement('iframe');
@@ -247,6 +296,9 @@ function submitToGoogleForms(name, email){
     var fields = {};
     fields[ENTRY_NAME]  = name;
     fields[ENTRY_EMAIL] = email;
+    if (userId && ENTRY_ID && ENTRY_ID.indexOf('PASTE_ID_HERE') === -1) {
+      fields[ENTRY_ID] = userId;
+    }
 
     for(var key in fields){
       var input = document.createElement('input');
@@ -293,6 +345,17 @@ function showResults(){
   document.getElementById('review-filter').value='all';
   applyFilter();
   showScreen('screen-results');
+  if (!_skipSaveAttempt) {
+    saveAttempt({
+      type: 'exam',
+      mode: currentMode,
+      pack: currentPack,
+      correct: correct, wrong: wrong, unanswered: unanswered,
+      total: TOTAL_Q, pct: pct, passed: passed,
+      userAnswers: userAnswers
+    });
+  }
+  _skipSaveAttempt = false;
 }
 
 /* ── REVIEW ── */
@@ -358,6 +421,89 @@ function reviewNav(dir){
   renderReviewCard();
 }
 
+/* ── PDF EXPORT ── */
+function downloadResultsPdf(){
+  if (!questions || !questions.length) return;
+  var u = loadUser() || {};
+  var correct=0,wrong=0,unanswered=0;
+  for(var i=0;i<TOTAL_Q;i++){
+    var ans=userAnswers[i]||[];
+    if(ans.length===0){unanswered++;continue;}
+    if(ans.slice().sort().join(',')===questions[i].correct.slice().sort().join(','))correct++;
+    else wrong++;
+  }
+  var pct=Math.round(correct/TOTAL_Q*100);
+  var passed=pct>=65;
+  var fam = currentMode==='ctai' ? 'CT-AI' : 'CT-GenAI';
+  var examTitle = fam + ' Exam · Pack #' + currentPack;
+  var now = new Date();
+  var pad = function(n){ return n<10?'0'+n:''+n; };
+  var dateStr = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+
+  var html = '';
+  html += '<div class="pdf-page">';
+  html += '<div class="pdf-header">';
+  html += '<div class="pdf-title">ISTQB® Exam Simulator — Results</div>';
+  html += '<div class="pdf-sub">'+esc(examTitle)+' · '+esc(dateStr)+'</div>';
+  html += '</div>';
+
+  html += '<div class="pdf-user">';
+  if (u.name)  html += '<div><b>Name:</b> '+esc(u.name)+'</div>';
+  if (u.email) html += '<div><b>Email:</b> '+esc(u.email)+'</div>';
+  if (u.id)    html += '<div><b>User ID:</b> '+esc(u.id)+'</div>';
+  html += '</div>';
+
+  html += '<div class="pdf-score-row">';
+  html += '<div class="pdf-score-pct '+(passed?'pass':'fail')+'">'+pct+'%</div>';
+  html += '<div class="pdf-score-meta">';
+  html += '<div class="pdf-verdict '+(passed?'pass':'fail')+'">'+(passed?'PASSED':'FAILED')+'</div>';
+  html += '<div>'+correct+' correct &middot; '+wrong+' wrong &middot; '+unanswered+' unanswered (out of '+TOTAL_Q+')</div>';
+  html += '<div style="font-size:11px;color:#666;">Pass mark: 65%</div>';
+  html += '</div>';
+  html += '</div>';
+
+  for (var qi=0; qi<TOTAL_Q; qi++){
+    var q = questions[qi];
+    var userAns = userAnswers[qi] || [];
+    var isCorrect = userAns.length>0 && userAns.slice().sort().join(',')===q.correct.slice().sort().join(',');
+    var status = userAns.length===0 ? 'unanswered' : (isCorrect ? 'correct' : 'wrong');
+    var statusLabel = status==='correct' ? '✓ Correct' : status==='wrong' ? '✗ Wrong' : '— Unanswered';
+
+    html += '<div class="pdf-q '+status+'">';
+    html += '<div class="pdf-q-head">';
+    html += '<span class="pdf-q-num">Q'+(qi+1)+'</span>';
+    html += '<span class="pdf-q-status '+status+'">'+statusLabel+'</span>';
+    html += '</div>';
+    html += '<div class="pdf-q-text">'+esc(q.q)+'</div>';
+    html += '<div class="pdf-opts">';
+    for (var oi=0; oi<q.opts.length; oi++){
+      var isCor = q.correct.indexOf(oi)>=0;
+      var isSel = userAns.indexOf(oi)>=0;
+      var optCls = 'pdf-opt';
+      if (isCor) optCls += ' correct';
+      else if (isSel) optCls += ' selected-wrong';
+      var marker = isCor ? '✓' : (isSel ? '✗' : '·');
+      html += '<div class="'+optCls+'"><span class="pdf-opt-mark">'+marker+'</span><b>'+LETTERS[oi]+')</b> '+esc(q.opts[oi])+'</div>';
+    }
+    html += '</div>';
+    if (q.exp){
+      html += '<div class="pdf-exp"><div class="pdf-exp-title">Explanation</div><div>'+esc(q.exp).replace(/\n/g,'<br>')+'</div></div>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="pdf-footer">Generated by ISTQB Exam Simulator · '+esc(dateStr)+(u.id ? ' · '+esc(u.id) : '')+'</div>';
+  html += '</div>';
+
+  document.getElementById('print-area').innerHTML = html;
+  document.body.classList.add('printing');
+  // Give the browser a moment to apply layout, then open print dialog
+  setTimeout(function(){
+    window.print();
+    document.body.classList.remove('printing');
+  }, 50);
+}
+
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -406,10 +552,13 @@ var glossRound = 0;
 var glossTotalAttempts = 0;
 var glossTotalCorrect = 0;
 var glossCurrentPairs = [];
-var glossDragSrc = null;
 var glossMatchedCount = 0;
+var glossCurrentPool = 'ctfl';
+var glossDetails = [];
+var glossRoundWrongCount = {};
 
 function startGlossary(type) {
+  glossCurrentPool = type || 'ctfl';
   var pool = (type === 'ctai' ? CTAI_GLOSSARY : type === 'genai' ? GENAI_GLOSSARY : GLOSSARY).slice();
   document.querySelector('#screen-glossary .page-header-title').textContent =
     type === 'ctai' ? 'CT-AI Glossary Practice' : type === 'genai' ? 'GenAI Glossary Practice' : 'CTFL Glossary Practice';
@@ -423,6 +572,8 @@ function startGlossary(type) {
   glossRound = 0;
   glossTotalAttempts = 0;
   glossTotalCorrect = 0;
+  glossDetails = [];
+  glossRoundWrongCount = {};
   showScreen('screen-glossary');
   glossRenderRound();
 }
@@ -433,6 +584,111 @@ function glossRenderRound() {
     return { term: p.term, definition: p.definition, idx: i };
   });
   glossMatchedCount = 0;
+  glossRoundWrongCount = {0:0,1:0,2:0,3:0,4:0,5:0};
+
+  document.getElementById('gloss-round-badge').textContent = 'Round ' + (glossRound + 1) + ' of 5';
+  document.getElementById('gloss-progress').style.width = (glossRound / 5 * 100) + '%';
+  document.getElementById('gloss-next-btn').style.display = 'none';
+
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    glossRenderDropdownRound();
+  } else {
+    glossRenderDragRound();
+  }
+}
+
+function glossRenderDropdownRound() {
+  function shuffleArr(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  var defOrder  = shuffleArr([0,1,2,3,4,5]);
+  var termOrder = shuffleArr([0,1,2,3,4,5]);
+
+  var listEl = document.getElementById('gloss-dd-list');
+  listEl.innerHTML = '';
+  defOrder.forEach(function(pairIdx) {
+    var card = document.createElement('div');
+    card.className = 'gloss-dd-card';
+    card.dataset.pairIdx = pairIdx;
+
+    var defEl = document.createElement('div');
+    defEl.className = 'gloss-dd-def';
+    defEl.textContent = glossCurrentPairs[pairIdx].definition;
+    card.appendChild(defEl);
+
+    var select = document.createElement('select');
+    select.className = 'gloss-dd-pick';
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '— pick a term —';
+    select.appendChild(placeholder);
+    termOrder.forEach(function(termPairIdx) {
+      var opt = document.createElement('option');
+      opt.value = String(termPairIdx);
+      opt.textContent = glossCurrentPairs[termPairIdx].term;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', glossOnSelect);
+    card.appendChild(select);
+
+    listEl.appendChild(card);
+  });
+}
+
+function glossOnSelect(e) {
+  var select = e.currentTarget;
+  var card = select.closest('.gloss-dd-card');
+  if (!card || card.classList.contains('matched-correct')) return;
+  if (select.value === '') return;
+
+  var pickedTermPairIdx = parseInt(select.value);
+  var defPairIdx = parseInt(card.dataset.pairIdx);
+  var correct = (pickedTermPairIdx === defPairIdx);
+
+  glossTotalAttempts++;
+  if (correct) {
+    glossTotalCorrect++;
+    glossMatchedCount++;
+    var pair = glossCurrentPairs[defPairIdx];
+    glossDetails.push({
+      round: glossRound + 1,
+      term: pair.term,
+      definition: pair.definition,
+      wrongCount: glossRoundWrongCount[defPairIdx] || 0
+    });
+    card.classList.add('matched-correct');
+    var pickedTerm = glossCurrentPairs[pickedTermPairIdx].term;
+    var lockedEl = document.createElement('div');
+    lockedEl.className = 'gloss-dd-pick';
+    lockedEl.textContent = '✓ ' + pickedTerm;
+    select.replaceWith(lockedEl);
+
+    document.querySelectorAll('#gloss-dd-list select.gloss-dd-pick').forEach(function(s) {
+      var opt = s.querySelector('option[value="' + pickedTermPairIdx + '"]');
+      if (opt) opt.remove();
+    });
+
+    if (glossMatchedCount === 6) {
+      var btn = document.getElementById('gloss-next-btn');
+      btn.style.display = 'block';
+      btn.textContent = glossRound === 4 ? 'See results' : 'Next round →';
+    }
+  } else {
+    glossRoundWrongCount[defPairIdx] = (glossRoundWrongCount[defPairIdx] || 0) + 1;
+    card.classList.add('matched-wrong');
+    setTimeout(function() {
+      card.classList.remove('matched-wrong');
+      select.value = '';
+    }, 700);
+  }
+}
+
+function glossRenderDragRound() {
 
   function shuffleArr(a) {
     for (var i = a.length - 1; i > 0; i--) {
@@ -445,9 +701,6 @@ function glossRenderRound() {
   var defOrder  = shuffleArr([0,1,2,3,4,5]);
   var termOrder = shuffleArr([0,1,2,3,4,5]);
 
-  document.getElementById('gloss-round-badge').textContent = 'Round ' + (glossRound + 1) + ' of 5';
-  document.getElementById('gloss-progress').style.width = (glossRound / 5 * 100) + '%';
-  document.getElementById('gloss-next-btn').style.display = 'none';
 
   var termsEl = document.getElementById('gloss-terms');
   termsEl.innerHTML = '';
@@ -548,6 +801,7 @@ function glossDefDrop(e) {
   /* Count every drop onto a definition as one attempt */
   glossTotalAttempts++;
   if (correct) glossTotalCorrect++;
+  else glossRoundWrongCount[defPairIdx] = (glossRoundWrongCount[defPairIdx] || 0) + 1;
 
   this.classList.add(correct ? 'matched-correct' : 'matched-wrong');
 
@@ -561,6 +815,13 @@ function glossDefDrop(e) {
 
   if (correct) {
     glossMatchedCount++;
+    var dragPair = glossCurrentPairs[defPairIdx];
+    glossDetails.push({
+      round: glossRound + 1,
+      term: dragPair.term,
+      definition: dragPair.definition,
+      wrongCount: glossRoundWrongCount[defPairIdx] || 0
+    });
     if (glossMatchedCount === 6) {
       var btn = document.getElementById('gloss-next-btn');
       btn.style.display = 'block';
@@ -589,6 +850,12 @@ function glossShowResults() {
     glossTotalCorrect + ' correct out of ' + glossTotalAttempts + ' total attempts';
   document.getElementById('gloss-progress').style.width = '100%';
   showScreen('screen-glossary-results');
+  saveAttempt({
+    type: 'glossary',
+    pool: glossCurrentPool,
+    correct: glossTotalCorrect, total: glossTotalAttempts, pct: pct,
+    details: glossDetails.slice()
+  });
 }
 
 
@@ -599,13 +866,14 @@ var blitzIdx=0;
 var blitzCorrect=0;
 var blitzCurrentPool='ctfl';
 var blitzAnswered=false;
+var blitzDetails=[];
 
 function startBlitz(pool){
   blitzCurrentPool=pool;
   var src=pool==='ctfl'?CTFL_BLITZ:pool==='ctai'?CTAI_BLITZ:pool==='genai'?GENAI_BLITZ:[];
   blitzPool=src;
   var _src=src.slice();for(var _i=_src.length-1;_i>0;_i--){var _j=Math.floor(Math.random()*(_i+1));var _t=_src[_i];_src[_i]=_src[_j];_src[_j]=_t;}blitzQuestions=_src.slice(0,10);
-  blitzIdx=0;blitzCorrect=0;
+  blitzIdx=0;blitzCorrect=0;blitzDetails=[];
   document.getElementById('blitz-title').textContent=pool==='ctfl'?'CTFL Knowledge Blitz':pool==='ctai'?'CT-AI Knowledge Blitz':pool==='genai'?'GenAI Knowledge Blitz':'Blitz';
   showScreen('screen-blitz');
   blitzRenderQ();
@@ -634,6 +902,7 @@ function blitzAnswer(answer){
   var q=blitzQuestions[blitzIdx];
   var correct=(answer===q.a);
   if(correct)blitzCorrect++;
+  blitzDetails.push({ q: q.q, correctAns: q.a, userAns: answer, isCorrect: correct });
   var tb=document.getElementById('blitz-true-btn');
   var fb=document.getElementById('blitz-false-btn');
   tb.disabled=true;fb.disabled=true;
@@ -664,4 +933,257 @@ function blitzShowResults(){
     blitzCorrect+' correct out of 10 questions - '+(pct>=65?'Great work!':'Keep practising!');
   document.getElementById('blitz-progress').style.width='100%';
   showScreen('screen-blitz-results');
+  saveAttempt({
+    type: 'blitz',
+    pool: blitzCurrentPool,
+    correct: blitzCorrect, total: 10, pct: pct, passed: pct>=65,
+    details: blitzDetails.slice()
+  });
+}
+
+/* ── PROFILE & PERSISTENCE ── */
+var LS_USER = 'quizhub_user';
+var LS_ATTEMPTS = 'quizhub_attempts';
+var _skipSaveAttempt = false;
+
+function loadUser(){
+  try { return JSON.parse(localStorage.getItem(LS_USER) || 'null'); }
+  catch(e){ return null; }
+}
+function saveUser(u){
+  try { localStorage.setItem(LS_USER, JSON.stringify(u)); } catch(e){}
+}
+function loadAttempts(){
+  try { return JSON.parse(localStorage.getItem(LS_ATTEMPTS) || '[]'); }
+  catch(e){ return []; }
+}
+function saveAttempt(att){
+  try {
+    var arr = loadAttempts();
+    att.id = Date.now() + '-' + Math.random().toString(36).slice(2,7);
+    att.date = new Date().toISOString();
+    arr.unshift(att);
+    if (arr.length > 100) arr = arr.slice(0, 100);
+    localStorage.setItem(LS_ATTEMPTS, JSON.stringify(arr));
+  } catch(e){ console.warn('Save attempt failed:', e); }
+}
+function getInitials(name){
+  if(!name) return '?';
+  var parts = name.trim().split(/\s+/);
+  var first = parts[0]?parts[0][0]:'';
+  var second = parts[1]?parts[1][0]:'';
+  return (first + second).toUpperCase() || '?';
+}
+function updateProfileButton(){
+  var btn = document.getElementById('profile-btn');
+  if(!btn) return;
+  var u = loadUser();
+  if (u && u.name) {
+    btn.textContent = getInitials(u.name);
+    btn.title = u.name + ' — view profile';
+    btn.classList.add('visible');
+  } else {
+    btn.classList.remove('visible');
+  }
+}
+
+function openProfile(){
+  renderProfile();
+  showScreen('screen-profile');
+}
+
+function formatAttemptDate(iso){
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  var pad = function(n){ return n<10?'0'+n:''+n; };
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' · '+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+
+function attemptLabel(att){
+  if (att.type === 'exam') {
+    var fam = att.mode === 'ctai' ? 'CT-AI' : 'CT-GenAI';
+    return fam + ' Exam · Pack #' + att.pack;
+  }
+  if (att.type === 'blitz') {
+    var fam2 = att.pool === 'ctai' ? 'CT-AI' : att.pool === 'genai' ? 'GenAI' : 'CTFL';
+    return fam2 + ' Knowledge Blitz';
+  }
+  if (att.type === 'glossary') {
+    var fam3 = att.pool === 'ctai' ? 'CT-AI' : att.pool === 'genai' ? 'GenAI' : 'CTFL';
+    return fam3 + ' Glossary Practice';
+  }
+  return att.type;
+}
+
+function renderProfile(){
+  var u = loadUser();
+  document.getElementById('profile-avatar').textContent = u && u.name ? getInitials(u.name) : '👤';
+  document.getElementById('profile-name').textContent = u && u.name ? u.name : 'Guest';
+  document.getElementById('profile-email').textContent = u && u.email ? u.email : 'No email registered';
+  document.getElementById('profile-userid').textContent = u && u.id ? 'ID: ' + u.id : '';
+
+  var listEl = document.getElementById('profile-attempts');
+  var arr = loadAttempts();
+  if (arr.length === 0) {
+    listEl.innerHTML = '<div class="profile-empty">No attempts yet. Complete an exam, blitz, or glossary practice to see it here.</div>';
+    return;
+  }
+  var html = '';
+  for (var i=0; i<arr.length; i++) {
+    var a = arr[i];
+    var verdictText = a.type === 'exam' ? (a.passed?'PASSED':'FAILED') : (a.type === 'blitz' ? (a.passed?'PASSED':'FAILED') : '');
+    var verdictCls = a.passed ? 'pass' : 'fail';
+    var pctColor = a.type==='glossary' ? '#1cb0f6' : (a.passed ? '#16a34a' : '#ef4444');
+    var clickable = (a.type === 'exam' && a.userAnswers) ||
+                    ((a.type === 'blitz' || a.type === 'glossary') && a.details && a.details.length);
+    var onclickAttr = '';
+    if (clickable) {
+      if (a.type === 'exam') onclickAttr = ' onclick="reopenAttempt(\''+a.id+'\')"';
+      else if (a.type === 'blitz') onclickAttr = ' onclick="reopenBlitzAttempt(\''+a.id+'\')"';
+      else if (a.type === 'glossary') onclickAttr = ' onclick="reopenGlossaryAttempt(\''+a.id+'\')"';
+    }
+    html += '<div class="attempt-item'+(clickable?' clickable':'')+'"'+onclickAttr+'>'+
+      '<div class="attempt-meta">'+
+        '<div class="attempt-type">'+esc(attemptLabel(a))+'</div>'+
+        '<div class="attempt-date">'+esc(formatAttemptDate(a.date))+(a.type!=='glossary' ? ' · '+a.correct+'/'+a.total+' correct' : ' · '+a.correct+'/'+a.total+' attempts')+'</div>'+
+      '</div>'+
+      '<div class="attempt-score">'+
+        '<div class="attempt-pct" style="color:'+pctColor+'">'+a.pct+'%</div>'+
+        (verdictText ? '<div class="attempt-verdict '+verdictCls+'">'+verdictText+'</div>' : '')+
+      '</div>'+
+      '</div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function reopenAttempt(id){
+  var arr = loadAttempts();
+  var att = null;
+  for (var i=0; i<arr.length; i++) { if (arr[i].id === id) { att = arr[i]; break; } }
+  if (!att || att.type !== 'exam' || !att.userAnswers) return;
+
+  currentMode = att.mode;
+  currentPack = att.pack;
+  questions = (att.mode === 'ctai' ? CTAI_PACKS : PACKS)[String(att.pack)];
+  if (!questions) return;
+  userAnswers = att.userAnswers;
+  _skipSaveAttempt = true;
+  showResults();
+}
+
+function findAttempt(id){
+  var arr = loadAttempts();
+  for (var i=0; i<arr.length; i++) { if (arr[i].id === id) return arr[i]; }
+  return null;
+}
+
+function poolLabel(pool){
+  return pool === 'ctai' ? 'CT-AI' : pool === 'genai' ? 'GenAI' : 'CTFL';
+}
+
+function reopenBlitzAttempt(id){
+  var att = findAttempt(id);
+  if (!att || att.type !== 'blitz' || !att.details) return;
+
+  document.getElementById('blitz-review-title').textContent =
+    poolLabel(att.pool) + ' Knowledge Blitz — review';
+  document.getElementById('blitz-review-meta').textContent =
+    formatAttemptDate(att.date) + ' · ' + att.correct + '/' + att.total + ' correct · ' + att.pct + '%';
+
+  var html = '';
+  for (var i=0; i<att.details.length; i++){
+    var d = att.details[i];
+    var cls = d.isCorrect ? 'correct' : 'wrong';
+    var icon = d.isCorrect ? '✓' : '✗';
+    html += '<div class="rv-item '+cls+'">';
+    html += '<div class="rv-item-head"><span class="rv-item-num">Q'+(i+1)+'</span>';
+    html += '<span class="rv-item-status '+cls+'">'+icon+' '+(d.isCorrect?'Correct':'Wrong')+'</span></div>';
+    html += '<div class="rv-item-q">'+esc(d.q)+'</div>';
+    html += '<div class="rv-item-ans">';
+    html += '<div>Your answer: <b>'+esc(d.userAns)+'</b></div>';
+    if (!d.isCorrect) html += '<div>Correct answer: <b>'+esc(d.correctAns)+'</b></div>';
+    html += '</div>';
+    html += '</div>';
+  }
+  document.getElementById('blitz-review-list').innerHTML = html;
+  showScreen('screen-blitz-review');
+}
+
+var _glossReviewByRound = {};
+var _glossReviewRound = 1;
+var _glossReviewMaxRound = 5;
+
+function reopenGlossaryAttempt(id){
+  var att = findAttempt(id);
+  if (!att || att.type !== 'glossary' || !att.details) return;
+
+  document.getElementById('gloss-review-title').textContent =
+    poolLabel(att.pool) + ' Glossary Practice — review';
+  document.getElementById('gloss-review-meta').textContent =
+    formatAttemptDate(att.date) + ' · ' + att.correct + '/' + att.total + ' attempts · ' + att.pct + '%';
+
+  var firstTry = 0, retried = 0;
+  _glossReviewByRound = {};
+  var maxRound = 1;
+  for (var i=0; i<att.details.length; i++){
+    var d = att.details[i];
+    if (d.wrongCount===0) firstTry++; else retried++;
+    var r = d.round || 1;
+    if (r > maxRound) maxRound = r;
+    if (!_glossReviewByRound[r]) _glossReviewByRound[r] = [];
+    _glossReviewByRound[r].push(d);
+  }
+  _glossReviewMaxRound = maxRound;
+
+  document.getElementById('gloss-review-summary').innerHTML =
+    '<div><b>'+firstTry+'</b> matched on first try</div>'+
+    '<div><b>'+retried+'</b> needed retries</div>';
+
+  var tabsHtml = '';
+  for (var r=1; r<=maxRound; r++){
+    var pairs = _glossReviewByRound[r] || [];
+    var hasRetry = false;
+    for (var k=0;k<pairs.length;k++) if (pairs[k].wrongCount>0) { hasRetry = true; break; }
+    var dotCls = hasRetry ? 'retry' : 'clean';
+    tabsHtml += '<button class="gloss-rv-tab" data-round="'+r+'" onclick="glossReviewSelectRound('+r+')">';
+    tabsHtml += 'Round '+r+'<span class="gloss-rv-dot '+dotCls+'"></span></button>';
+  }
+  document.getElementById('gloss-review-tabs').innerHTML = tabsHtml;
+
+  _glossReviewRound = 1;
+  glossReviewSelectRound(1);
+  showScreen('screen-glossary-review');
+}
+
+function glossReviewSelectRound(r){
+  _glossReviewRound = r;
+  var tabs = document.querySelectorAll('#gloss-review-tabs .gloss-rv-tab');
+  for (var i=0;i<tabs.length;i++){
+    var tr = parseInt(tabs[i].getAttribute('data-round'));
+    tabs[i].classList.toggle('active', tr === r);
+  }
+  var pairs = _glossReviewByRound[r] || [];
+  var html = '';
+  for (var j=0; j<pairs.length; j++){
+    var d = pairs[j];
+    var cls = d.wrongCount===0 ? 'correct' : 'retried';
+    var icon = d.wrongCount===0 ? '✓' : '↻';
+    var statusText = d.wrongCount===0 ? 'First try' : (d.wrongCount + ' wrong before correct');
+    html += '<div class="rv-item '+cls+'">';
+    html += '<div class="rv-item-head"><span class="rv-item-num">Pair '+(j+1)+' of '+pairs.length+'</span>';
+    html += '<span class="rv-item-status '+cls+'">'+icon+' '+statusText+'</span></div>';
+    html += '<div class="rv-item-q"><b>'+esc(d.term)+'</b></div>';
+    html += '<div class="rv-item-ans">'+esc(d.definition)+'</div>';
+    html += '</div>';
+  }
+  document.getElementById('gloss-review-list').innerHTML = html;
+  document.getElementById('gloss-review-pos').textContent = 'Round '+r+' of '+_glossReviewMaxRound;
+  document.getElementById('gloss-review-prev').disabled = (r <= 1);
+  document.getElementById('gloss-review-next').disabled = (r >= _glossReviewMaxRound);
+}
+
+function glossReviewNav(dir){
+  var n = _glossReviewRound + dir;
+  if (n < 1 || n > _glossReviewMaxRound) return;
+  glossReviewSelectRound(n);
 }
