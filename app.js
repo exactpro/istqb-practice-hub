@@ -633,8 +633,6 @@ function startGlossary(type) {
   var pool = (type === 'ctai' ? CTAI_GLOSSARY : type === 'genai' ? GENAI_GLOSSARY : GLOSSARY).slice();
   document.querySelector('#screen-glossary .page-header-title').textContent =
     type === 'ctai' ? 'CT-AI Glossary Practice' : type === 'genai' ? 'GenAI Glossary Practice' : 'CTFL Glossary Practice';
-  document.querySelector('#screen-glossary-results .btn-action.btn-blue').onclick =
-    function() { startGlossary(type); };
   for (var i = pool.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
