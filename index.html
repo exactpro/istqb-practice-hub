@@ -232,7 +232,10 @@
   </div>
   <div class="exam-footer">
     <button class="nav-btn" id="btn-prev" onclick="goTo(currentQ-1)">&#8592; Previous</button>
-    <button class="btn-submit" id="btn-submit" onclick="handleSubmitClick()">Submit exam</button>
+    <div class="submit-wrap">
+      <div class="submit-warning" id="submit-warning"></div>
+      <button class="btn-submit" id="btn-submit" onclick="handleSubmitClick()">Submit exam</button>
+    </div>
     <button class="nav-btn" id="btn-next" onclick="goTo(currentQ+1)">Next &#8594;</button>
   </div>
 </div>
@@ -240,6 +243,10 @@
 <!-- ══ RESULTS ══ -->
 <div id="screen-results" class="screen">
   <div class="results-hero">
+    <div class="results-top-bar">
+      <button class="back-btn" onclick="showScreen(currentMode==='ctai'?'screen-ctai-home':'screen-genai-home')">&#8592; Back to packs</button>
+    </div>
+    <div class="results-title">Your results</div>
     <div class="score-ring" id="score-ring"><div class="score-inner"><div class="score-pct" id="score-pct">0%</div><div class="score-sub-lbl">score</div></div></div>
     <div class="verdict" id="verdict"></div>
     <div style="font-size:14px;color:var(--text3);margin-top:4px;" id="result-sub"></div>
@@ -254,12 +261,10 @@
       <option value="all">Review all questions</option>
       <option value="wrong">Wrong answers only</option>
       <option value="correct">Correct answers only</option>
-      <option value="unanswered">Unanswered only</option>
     </select>
     <button class="btn-action btn-blue" onclick="startExam(currentPack)">Retake exam</button>
     <button class="btn-action btn-blue" onclick="downloadResultsPdf()">⬇ Download PDF</button>
     <button class="btn-action btn-gray" onclick="openProfile()">Profile</button>
-    <button class="btn-action btn-gray" onclick="showScreen('screen-genai-home')">Back to packs</button>
     <button class="btn-action btn-gray" onclick="showScreen('screen-hub')">Hub</button>
   </div>
   <div class="review-card" id="review-card"></div>
@@ -331,18 +336,6 @@
     <div class="modal-btns">
       <button style="background:var(--surface2);color:var(--text2);" onclick="closeModals()">Cancel</button>
       <button style="background:#58cc02;color:#fff;" onclick="doSubmit()">Submit &amp; see results</button>
-    </div>
-  </div>
-</div>
-
-<!-- Submit modal - incomplete -->
-<div class="modal-overlay" id="modal-submit-incomplete">
-  <div class="modal">
-    <h2>Not all questions answered</h2>
-    <p id="modal-incomplete-msg"></p>
-    <div class="modal-btns">
-      <button style="background:var(--blue);color:#fff;" onclick="closeModals()">Continue answering</button>
-      <button style="background:var(--text4);color:#fff;" onclick="doSubmit()">Submit anyway</button>
     </div>
   </div>
 </div>

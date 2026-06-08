@@ -75,10 +75,13 @@ function buildNavGrid(){
 function updateNav(){
   for(var i=0;i<TOTAL_Q;i++){
     var btn=document.getElementById('qnb-'+i);if(!btn)continue;
+    var isAnswered=userAnswers[i]&&userAnswers[i].length>0;
+    var keepFlash=btn.classList.contains('flash-unanswered')&&!isAnswered;
     var c='qnb';
-    if(userAnswers[i]&&userAnswers[i].length>0)c+=' answered';
+    if(isAnswered)c+=' answered';
     if(flagged[i])c+=' flagged';
     if(i===currentQ)c+=' cur';
+    if(keepFlash)c+=' flash-unanswered';
     btn.className=c;
   }
   var ans=countAnswered();
@@ -140,16 +143,39 @@ function toggleFlag(){
   updateNav();
 }
 
+var _flashTimer = null;
 function handleSubmitClick(){
   var ans=countAnswered(),un=TOTAL_Q-ans;
   if(un===0){
     document.getElementById('modal-submit-all').classList.add('open');
-  }else{
-    document.getElementById('modal-incomplete-msg').textContent=
-      'You still have '+un+' unanswered question'+(un===1?'':'s')+
-      '. Finish the remaining questions to see the score and the full review with explanations.';
-    document.getElementById('modal-submit-incomplete').classList.add('open');
+    return;
   }
+  for(var i=0;i<TOTAL_Q;i++){
+    var btn=document.getElementById('qnb-'+i);
+    if(!btn)continue;
+    if(!userAnswers[i]||userAnswers[i].length===0){
+      btn.classList.add('flash-unanswered');
+    }
+  }
+  var notice=document.getElementById('submit-warning');
+  if(notice){
+    notice.textContent=un+' question'+(un===1?'':'s')+' unanswered — finish them all to submit';
+    notice.classList.add('visible');
+  }
+  var firstUn=-1;
+  for(var j=0;j<TOTAL_Q;j++){
+    if(!userAnswers[j]||userAnswers[j].length===0){firstUn=j;break;}
+  }
+  if(firstUn>=0){
+    var firstBtn=document.getElementById('qnb-'+firstUn);
+    if(firstBtn&&firstBtn.scrollIntoView){firstBtn.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  }
+  if(_flashTimer)clearTimeout(_flashTimer);
+  _flashTimer=setTimeout(function(){
+    var all=document.querySelectorAll('.qnb.flash-unanswered');
+    for(var k=0;k<all.length;k++)all[k].classList.remove('flash-unanswered');
+    if(notice)notice.classList.remove('visible');
+  },4000);
 }
 
 function showLeaveModal(){document.getElementById('modal-leave').classList.add('open');}
