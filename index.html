@@ -9,7 +9,8 @@
 </head>
 <body>
 <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">☀️</button>
-<button id="profile-btn" onclick="openProfile()" title="View profile">👤</button>
+<button id="profile-btn" onclick="openProfileGuarded()" title="View profile">👤</button>
+<div class="one-min-toast" id="one-min-toast">⏱ 1 minute remaining</div>
 
 <div id="app">
 
@@ -250,6 +251,7 @@
     <div class="score-ring" id="score-ring"><div class="score-inner"><div class="score-pct" id="score-pct">0%</div><div class="score-sub-lbl">score</div></div></div>
     <div class="verdict" id="verdict"></div>
     <div style="font-size:14px;color:var(--text3);margin-top:4px;" id="result-sub"></div>
+    <div class="auto-submit-badge" id="auto-submit-badge" style="display:none;">⏱ Submitted automatically — time ran out</div>
     <div class="stats-row">
       <div class="stat-box"><div class="stat-val" id="stat-correct">0</div><div class="stat-lbl">Correct</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-wrong">0</div><div class="stat-lbl">Wrong</div></div>
@@ -261,6 +263,7 @@
       <option value="all">Review all questions</option>
       <option value="wrong">Wrong answers only</option>
       <option value="correct">Correct answers only</option>
+      <option value="unanswered">Unanswered only</option>
     </select>
     <button class="btn-action btn-blue" onclick="startExam(currentPack)">Retake exam</button>
     <button class="btn-action btn-blue" onclick="downloadResultsPdf()">⬇ Download PDF</button>
@@ -336,6 +339,17 @@
     <div class="modal-btns">
       <button style="background:var(--surface2);color:var(--text2);" onclick="closeModals()">Cancel</button>
       <button style="background:#58cc02;color:#fff;" onclick="doSubmit()">Submit &amp; see results</button>
+    </div>
+  </div>
+</div>
+
+<!-- Time's up modal -->
+<div class="modal-overlay" id="modal-times-up">
+  <div class="modal">
+    <h2>⏱ Time's up!</h2>
+    <p>Your exam will be submitted automatically in <strong><span id="times-up-counter">5</span></strong> seconds.</p>
+    <div class="modal-btns">
+      <button style="background:var(--blue);color:#fff;" onclick="timesUpGoToResults()">Go to results now</button>
     </div>
   </div>
 </div>

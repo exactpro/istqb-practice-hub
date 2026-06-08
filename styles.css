@@ -188,10 +188,19 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 /* ── EXAM ── */
 .exam-header{background:var(--surface);border-radius:16px;padding:13px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);}
 .exam-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--text1);flex:1;}
-.timer{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:var(--text1);min-width:58px;text-align:center;}
+.timer{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:var(--text1);min-width:58px;text-align:center;padding:4px 12px;border-radius:8px;background:transparent;}
 .timer.warning{color:#f59e0b;}
 .timer.danger{color:var(--red);animation:blink 1s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.45;}}
+.timer.critical{
+  color:#fff;background:var(--red);
+  animation:criticalPulse .55s ease-in-out infinite;
+  box-shadow:0 0 0 0 rgba(239,68,68,.7);
+}
+@keyframes criticalPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(239,68,68,.7);}
+  50%{transform:scale(1.1);box-shadow:0 0 0 10px rgba(239,68,68,0);}
+}
 .leave-btn{padding:6px 12px;border:1.5px solid #fca5a5;border-radius:8px;background:transparent;color:#dc2626;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:background .12s;}
 .leave-btn:hover{background:var(--red-bg);}
 .progress-bar-wrap{height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
@@ -589,6 +598,42 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
   gap:10px;margin-top:6px;
 }
 .results-actions-grid .btn-action{width:100%;}
+
+/* ── 1-MINUTE TOAST ── */
+.one-min-toast{
+  position:fixed;
+  top:60px;left:50%;
+  transform:translate(-50%,-20px);
+  background:var(--red);color:#fff;
+  padding:12px 24px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  box-shadow:0 6px 24px rgba(239,68,68,.4);
+  z-index:300;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;
+}
+.one-min-toast.visible{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* ── AUTO-SUBMIT BADGE ON RESULTS ── */
+.auto-submit-badge{
+  display:inline-block;
+  background:var(--amber-bg);
+  color:var(--amber-text);
+  padding:6px 14px;border-radius:99px;
+  font-size:12px;font-weight:700;
+  margin-top:10px;
+  border:1px solid #fde68a;
+}
+
+/* ── QUESTION-TEXT PARAGRAPH GAP ── */
+.q-gap{height:12px;}
+@media print{.q-gap{height:7px;}}
+
+/* ── BUTTON DISABLED STATE ── */
+.btn-action:disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
 
 /* ── RESULTS HERO HEADER ── */
 .results-top-bar{

@@ -37,6 +37,8 @@ function startExam(pack){
   currentPack=pack;
   questions=PACKS[String(pack)];
   userAnswers={};flagged={};currentQ=0;secondsLeft=EXAM_SECS;
+  _autoSubmitted=false;_oneMinuteWarned=false;
+  if(_timesUpInterval){clearInterval(_timesUpInterval);_timesUpInterval=null;}
   clearInterval(timerInterval);
   document.getElementById('exam-title').textContent='CT-GenAI \u2014 Pack #'+pack;
   showScreen('screen-exam');
@@ -46,17 +48,69 @@ function startExam(pack){
   timerInterval=setInterval(tickTimer,1000);
 }
 
+var _autoSubmitted=false;
+var _oneMinuteWarned=false;
+var _timesUpInterval=null;
+
 function tickTimer(){
   secondsLeft--;
-  if(secondsLeft<=0){secondsLeft=0;updateTimerDisplay();clearInterval(timerInterval);doSubmit();return;}
+  if(secondsLeft<=0){
+    secondsLeft=0;
+    updateTimerDisplay();
+    clearInterval(timerInterval);
+    _autoSubmitted=true;
+    showTimesUpModal();
+    return;
+  }
+  if(secondsLeft<=60 && !_oneMinuteWarned){
+    _oneMinuteWarned=true;
+    showOneMinuteToast();
+  }
   updateTimerDisplay();
+}
+
+function showOneMinuteToast(){
+  var t=document.getElementById('one-min-toast');
+  if(!t)return;
+  t.classList.add('visible');
+  setTimeout(function(){t.classList.remove('visible');},4000);
+}
+
+function showTimesUpModal(){
+  var modal=document.getElementById('modal-times-up');
+  if(!modal){doSubmit();return;}
+  modal.classList.add('open');
+  var counter=document.getElementById('times-up-counter');
+  var n=5;
+  if(counter)counter.textContent=n;
+  if(_timesUpInterval)clearInterval(_timesUpInterval);
+  _timesUpInterval=setInterval(function(){
+    n--;
+    if(counter)counter.textContent=n;
+    if(n<=0){
+      clearInterval(_timesUpInterval);_timesUpInterval=null;
+      modal.classList.remove('open');
+      doSubmit();
+    }
+  },1000);
+}
+
+function timesUpGoToResults(){
+  if(_timesUpInterval){clearInterval(_timesUpInterval);_timesUpInterval=null;}
+  var modal=document.getElementById('modal-times-up');
+  if(modal)modal.classList.remove('open');
+  doSubmit();
 }
 
 function updateTimerDisplay(){
   var m=Math.floor(secondsLeft/60),s=secondsLeft%60;
   var el=document.getElementById('timer');
   el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  el.className='timer'+(secondsLeft<=300?' danger':secondsLeft<=600?' warning':'');
+  var cls='timer';
+  if(secondsLeft<=10)cls+=' critical';
+  else if(secondsLeft<=300)cls+=' danger';
+  else if(secondsLeft<=600)cls+=' warning';
+  el.className=cls;
 }
 
 function buildNavGrid(){
@@ -104,9 +158,11 @@ function goTo(idx){
 function renderQuestion(){
   var q=questions[currentQ];
   document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q;
-  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-text').innerHTML=renderQText(q.q);
   var ec=q.exp_count||1;
-  document.getElementById('multi-hint-wrap').innerHTML=ec>1?'<span class="multi-hint">Select '+ec+' answers</span>':'';
+  var W=['','ONE','TWO','THREE','FOUR','FIVE'];
+  var hintTxt='Select '+(ec<=5?W[ec]:ec)+' option'+(ec===1?'':'s');
+  document.getElementById('multi-hint-wrap').innerHTML='<span class="multi-hint">'+hintTxt+'</span>';
   document.getElementById('flag-btn').className=flagged[currentQ]?'flag-btn flagged':'flag-btn';
   var list=document.getElementById('options-list');
   list.innerHTML='';
@@ -179,11 +235,26 @@ function handleSubmitClick(){
 }
 
 function showLeaveModal(){document.getElementById('modal-leave').classList.add('open');}
+var pendingProfileNav=false;
 function closeModals(){
   var ms=document.querySelectorAll('.modal-overlay');
   for(var i=0;i<ms.length;i++)ms[i].classList.remove('open');
+  pendingProfileNav=false;
 }
-function doLeave(){closeModals();clearInterval(timerInterval);showScreen('screen-genai-home');}
+function doLeave(){
+  closeModals();
+  clearInterval(timerInterval);
+  if(pendingProfileNav){pendingProfileNav=false;openProfile();return;}
+  showScreen('screen-genai-home');
+}
+function openProfileGuarded(){
+  if(document.getElementById('screen-exam').classList.contains('active')){
+    pendingProfileNav=true;
+    showLeaveModal();
+  }else{
+    openProfile();
+  }
+}
 
 function doSubmit(){
   closeModals();
@@ -436,6 +507,9 @@ function showResults(){
   var vd=document.getElementById('verdict');
   vd.textContent=passed?'PASSED':'FAILED';vd.className='verdict '+(passed?'pass':'fail');
   document.getElementById('result-sub').textContent='Pack #'+currentPack+' \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
+  var autoBadge=document.getElementById('auto-submit-badge');
+  if(autoBadge)autoBadge.style.display=_autoSubmitted?'':'none';
+  _autoSubmitted=false;
   document.getElementById('stat-correct').textContent=correct;
   document.getElementById('stat-wrong').textContent=wrong;
   document.getElementById('stat-unanswered').textContent=unanswered;
@@ -491,7 +565,7 @@ function renderReviewCard(){
   }
 
   var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+'</div>';
-  html+='<div class="rv-qtext">'+esc(q.q)+'</div>';
+  html+='<div class="rv-qtext">'+renderQText(q.q)+'</div>';
   html+='<div class="rv-opts">';
   for(var i=0;i<q.opts.length;i++){
     var isCor=q.correct.indexOf(i)>=0;
@@ -571,7 +645,7 @@ function downloadResultsPdf(){
     html += '<span class="pdf-q-num">Q'+(qi+1)+'</span>';
     html += '<span class="pdf-q-status '+status+'">'+statusLabel+'</span>';
     html += '</div>';
-    html += '<div class="pdf-q-text">'+esc(q.q)+'</div>';
+    html += '<div class="pdf-q-text">'+renderQText(q.q)+'</div>';
     html += '<div class="pdf-opts">';
     for (var oi=0; oi<q.opts.length; oi++){
       var isCor = q.correct.indexOf(oi)>=0;
@@ -605,6 +679,10 @@ function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function renderQText(s){
+  return esc(s).replace(/\n\n/g,'<div class="q-gap"></div>').replace(/\n/g,'<br>');
+}
+
 /* ── CT-AI EXAM ── */
 var currentMode = 'genai';
 
@@ -619,6 +697,8 @@ function startExamCtai(pack) {
   currentPack = pack;
   questions = CTAI_PACKS[String(pack)];
   userAnswers = {}; flagged = {}; currentQ = 0; secondsLeft = EXAM_SECS;
+  _autoSubmitted=false;_oneMinuteWarned=false;
+  if(_timesUpInterval){clearInterval(_timesUpInterval);_timesUpInterval=null;}
   clearInterval(timerInterval);
   document.getElementById('exam-title').textContent = 'CT-AI \u2014 Pack #' + pack;
   showScreen('screen-exam');
@@ -630,8 +710,10 @@ function startExamCtai(pack) {
 
 var _origDoLeave = doLeave;
 doLeave = function() {
+  var wasPendingProfile = pendingProfileNav;
   closeModals();
   clearInterval(timerInterval);
+  if (wasPendingProfile) { openProfile(); return; }
   showScreen(currentMode === 'ctai' ? 'screen-ctai-home' : 'screen-genai-home');
 };
 
