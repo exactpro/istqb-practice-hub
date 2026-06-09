@@ -453,7 +453,7 @@ function attemptFormFields(att){
 
   if (att.type === 'exam'){
     fields[ENTRY_ACTIVITY]   = 'Exam';
-    fields[ENTRY_FAMILY]     = att.mode === 'ctai' ? 'CT-AI' : 'CT-GenAI';
+    fields[ENTRY_FAMILY]     = att.mode === 'ctai' ? 'CT-AI' : att.mode === 'ctfl' ? 'CTFL' : 'CT-GenAI';
     fields[ENTRY_PACK_ROUND] = 'Pack #' + att.pack;
     fields[ENTRY_CORRECT]    = att.correct;
     fields[ENTRY_WRONG]      = att.wrong;
@@ -605,7 +605,7 @@ function downloadResultsPdf(){
   }
   var pct=Math.round(correct/TOTAL_Q*100);
   var passed=pct>=65;
-  var fam = currentMode==='ctai' ? 'CT-AI' : 'CT-GenAI';
+  var fam = currentMode==='ctai' ? 'CT-AI' : currentMode==='ctfl' ? 'CTFL' : 'CT-GenAI';
   var examTitle = fam + ' Exam · Pack #' + currentPack;
   var now = new Date();
   var pad = function(n){ return n<10?'0'+n:''+n; };
@@ -708,18 +708,34 @@ function startExamCtai(pack) {
   timerInterval = setInterval(tickTimer, 1000);
 }
 
+function startExamCtfl(pack) {
+  currentMode = 'ctfl';
+  currentPack = pack;
+  questions = CTFL_PACKS[String(pack)];
+  userAnswers = {}; flagged = {}; currentQ = 0; secondsLeft = EXAM_SECS;
+  _autoSubmitted=false;_oneMinuteWarned=false;
+  if(_timesUpInterval){clearInterval(_timesUpInterval);_timesUpInterval=null;}
+  clearInterval(timerInterval);
+  document.getElementById('exam-title').textContent = 'CTFL \u2014 Pack #' + pack;
+  showScreen('screen-exam');
+  buildNavGrid();
+  renderQuestion();
+  updateTimerDisplay();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
 var _origDoLeave = doLeave;
 doLeave = function() {
   var wasPendingProfile = pendingProfileNav;
   closeModals();
   clearInterval(timerInterval);
   if (wasPendingProfile) { openProfile(); return; }
-  showScreen(currentMode === 'ctai' ? 'screen-ctai-home' : 'screen-genai-home');
+  showScreen(currentMode === 'ctai' ? 'screen-ctai-home' : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home');
 };
 
 var _origDoSubmit = doSubmit;
 doSubmit = function() {
-  var backScreen = currentMode === 'ctai' ? 'screen-ctai-home' : 'screen-genai-home';
+  var backScreen = currentMode === 'ctai' ? 'screen-ctai-home' : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home';
   var backBtn = document.getElementById('back-after-results');
   if (backBtn) backBtn.setAttribute('data-screen', backScreen);
   _origDoSubmit();
@@ -1182,7 +1198,7 @@ function formatAttemptDate(iso){
 
 function attemptLabel(att){
   if (att.type === 'exam') {
-    var fam = att.mode === 'ctai' ? 'CT-AI' : 'CT-GenAI';
+    var fam = att.mode === 'ctai' ? 'CT-AI' : att.mode === 'ctfl' ? 'CTFL' : 'CT-GenAI';
     return fam + ' Exam · Pack #' + att.pack;
   }
   if (att.type === 'blitz') {
@@ -1245,7 +1261,7 @@ function reopenAttempt(id){
 
   currentMode = att.mode;
   currentPack = att.pack;
-  questions = (att.mode === 'ctai' ? CTAI_PACKS : PACKS)[String(att.pack)];
+  questions = (att.mode === 'ctai' ? CTAI_PACKS : att.mode === 'ctfl' ? CTFL_PACKS : PACKS)[String(att.pack)];
   if (!questions) return;
   userAnswers = att.userAnswers;
   _skipSaveAttempt = true;

@@ -21,11 +21,11 @@
     <div class="hub-sub">Practice for your ISTQB<sup class="tm">®</sup> certification &middot; Timed exam mode &middot; Full review with explanations</div>
   </div>
   <div class="hub-grid">
-    <div class="hub-tile inactive" onclick="showComingSoon('CTFL')">
+    <div class="hub-tile" onclick="showScreen('screen-ctfl-home')">
       <div class="hub-tile-label">Foundation</div>
       <div class="hub-tile-name">CTFL</div>
       <div class="hub-tile-desc">Certified Tester Foundation Level</div>
-      <span class="hub-tile-badge badge-soon">Coming soon</span>
+      <span class="hub-tile-badge badge-active">1 pack available</span>
     </div>
     <div class="hub-tile inactive" onclick="showComingSoon('CT-AI')">
       <div class="hub-tile-label">Specialist</div>
@@ -107,6 +107,24 @@
   <div class="pack-section-label">Select an exam pack to begin:</div>
   <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
     <div class="pack-card" onclick="startExam(1)"><div class="pack-card-title">Pack #1</div></div>
+  </div>
+</div>
+
+
+<!-- ══ CTFL HOME ══ -->
+<div id="screen-ctfl-home" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; All exams</button>
+    <div class="page-header-title">CTFL Exam Simulator</div>
+  </div>
+  <div class="info-cards">
+    <div class="info-card"><div class="val">40</div><div class="lbl">Questions per exam</div></div>
+    <div class="info-card"><div class="val">60 min</div><div class="lbl">Time limit</div></div>
+    <div class="info-card"><div class="val">65%</div><div class="lbl">Pass threshold</div></div>
+  </div>
+  <div class="pack-section-label">Select an exam pack to begin:</div>
+  <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
+    <div class="pack-card" onclick="startExamCtfl(1)"><div class="pack-card-title">Pack #1</div></div>
   </div>
 </div>
 
@@ -245,7 +263,7 @@
 <div id="screen-results" class="screen">
   <div class="results-hero">
     <div class="results-top-bar">
-      <button class="back-btn" onclick="showScreen(currentMode==='ctai'?'screen-ctai-home':'screen-genai-home')">&#8592; Back to packs</button>
+      <button class="back-btn" onclick="showScreen(currentMode==='ctai'?'screen-ctai-home':currentMode==='ctfl'?'screen-ctfl-home':'screen-genai-home')">&#8592; Back to packs</button>
     </div>
     <div class="results-title">Your results</div>
     <div class="score-ring" id="score-ring"><div class="score-inner"><div class="score-pct" id="score-pct">0%</div><div class="score-sub-lbl">score</div></div></div>
