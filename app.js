@@ -1076,7 +1076,7 @@ function startBlitz(pool){
   blitzPool=src;
   var _src=src.slice();for(var _i=_src.length-1;_i>0;_i--){var _j=Math.floor(Math.random()*(_i+1));var _t=_src[_i];_src[_i]=_src[_j];_src[_j]=_t;}blitzQuestions=_src.slice(0,10);
   blitzIdx=0;blitzCorrect=0;blitzDetails=[];
-  document.getElementById('blitz-title').textContent=pool==='ctfl'?'CTFL Knowledge Blitz':pool==='ctai'?'CT-AI Knowledge Blitz':pool==='genai'?'GenAI Knowledge Blitz':'Blitz';
+  document.getElementById('blitz-title').textContent=pool==='ctfl'?'CTFL Lightning Round':pool==='ctai'?'CT-AI Lightning Round':pool==='genai'?'GenAI Lightning Round':'Lightning Round';
   showScreen('screen-blitz');
   blitzRenderQ();
 }
@@ -1212,7 +1212,7 @@ function attemptLabel(att){
   }
   if (att.type === 'blitz') {
     var fam2 = att.pool === 'ctai' ? 'CT-AI' : att.pool === 'genai' ? 'GenAI' : 'CTFL';
-    return fam2 + ' Knowledge Blitz';
+    return fam2 + ' Lightning Round';
   }
   if (att.type === 'glossary') {
     var fam3 = att.pool === 'ctai' ? 'CT-AI' : att.pool === 'genai' ? 'GenAI' : 'CTFL';
@@ -1299,7 +1299,7 @@ function reopenBlitzAttempt(id){
   if (!att || att.type !== 'blitz' || !att.details) return;
 
   document.getElementById('blitz-review-title').textContent =
-    poolLabel(att.pool) + ' Knowledge Blitz — review';
+    poolLabel(att.pool) + ' Lightning Round — review';
   document.getElementById('blitz-review-meta').textContent =
     formatAttemptDate(att.date) + ' · ' + att.correct + '/' + att.total + ' correct · ' + att.pct + '%';
 
