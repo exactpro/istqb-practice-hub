@@ -659,7 +659,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 }
 .q-table tr.q-table-section th{
   background:var(--surface2);
-  font-style:italic;
+  font-weight:800;
+  text-align:center;
+  font-family:'Nunito',sans-serif;
   border-top:2px solid var(--border2);
 }
 @media print{
