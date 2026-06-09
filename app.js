@@ -158,7 +158,7 @@ function goTo(idx){
 function renderQuestion(){
   var q=questions[currentQ];
   document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q;
-  document.getElementById('q-text').innerHTML=renderQText(q.q);
+  document.getElementById('q-text').innerHTML=renderQText(q.q, q.tables);
   var ec=q.exp_count||1;
   var W=['','ONE','TWO','THREE','FOUR','FIVE'];
   var hintTxt='Select '+(ec<=5?W[ec]:ec)+' option'+(ec===1?'':'s');
@@ -565,7 +565,7 @@ function renderReviewCard(){
   }
 
   var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+'</div>';
-  html+='<div class="rv-qtext">'+renderQText(q.q)+'</div>';
+  html+='<div class="rv-qtext">'+renderQText(q.q, q.tables)+'</div>';
   html+='<div class="rv-opts">';
   for(var i=0;i<q.opts.length;i++){
     var isCor=q.correct.indexOf(i)>=0;
@@ -645,7 +645,7 @@ function downloadResultsPdf(){
     html += '<span class="pdf-q-num">Q'+(qi+1)+'</span>';
     html += '<span class="pdf-q-status '+status+'">'+statusLabel+'</span>';
     html += '</div>';
-    html += '<div class="pdf-q-text">'+renderQText(q.q)+'</div>';
+    html += '<div class="pdf-q-text">'+renderQText(q.q, q.tables)+'</div>';
     html += '<div class="pdf-opts">';
     for (var oi=0; oi<q.opts.length; oi++){
       var isCor = q.correct.indexOf(oi)>=0;
@@ -679,8 +679,17 @@ function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function renderQText(s){
-  return esc(s).replace(/\n\n/g,'<div class="q-gap"></div>').replace(/\n/g,'<br>');
+function renderQText(s, tables){
+  var html = esc(s)
+    .replace(/\n\n/g,'<div class="q-gap"></div>')
+    .replace(/\n/g,'<br>')
+    .replace(/&lt;(\/?(?:em|strong))&gt;/g,'<$1>');
+  if (tables && tables.length){
+    for (var i=0;i<tables.length;i++){
+      html = html.replace('{{table:'+i+'}}', tables[i]);
+    }
+  }
+  return html;
 }
 
 /* ── CT-AI EXAM ── */
