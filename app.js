@@ -172,7 +172,7 @@ function renderQuestion(){
       var btn=document.createElement('button');
       btn.className='opt-btn'+(sel.indexOf(idx)>=0?' selected':'');
       var ltr=document.createElement('span');ltr.className='opt-letter';ltr.textContent=LETTERS[idx];
-      var txt=document.createElement('span');txt.textContent=q.opts[idx];
+      var txt=document.createElement('span');txt.innerHTML=renderOptText(q.opts[idx]);
       btn.appendChild(ltr);btn.appendChild(txt);
       btn.addEventListener('click',function(){selectOpt(idx);});
       list.appendChild(btn);
@@ -572,7 +572,7 @@ function renderReviewCard(){
     var isSel=userAns.indexOf(i)>=0;
     var cls='rv-opt'+(isCor?' correct':isSel&&!isCor?' wrong':'');
     var icon=isCor?'&#10003;':isSel&&!isCor?'&#10007;':'&nbsp;';
-    html+='<div class="'+cls+'"><span class="rv-icon">'+icon+'</span><span><span class="rv-letter">'+LETTERS[i]+')</span>'+esc(q.opts[i])+'</span></div>';
+    html+='<div class="'+cls+'"><span class="rv-icon">'+icon+'</span><span><span class="rv-letter">'+LETTERS[i]+')</span>'+renderOptText(q.opts[i])+'</span></div>';
   }
   html+='</div>';
   if(mainExp){
@@ -654,7 +654,7 @@ function downloadResultsPdf(){
       if (isCor) optCls += ' correct';
       else if (isSel) optCls += ' selected-wrong';
       var marker = isCor ? '✓' : (isSel ? '✗' : '·');
-      html += '<div class="'+optCls+'"><span class="pdf-opt-mark">'+marker+'</span><b>'+LETTERS[oi]+')</b> '+esc(q.opts[oi])+'</div>';
+      html += '<div class="'+optCls+'"><span class="pdf-opt-mark">'+marker+'</span><b>'+LETTERS[oi]+')</b> '+renderOptText(q.opts[oi])+'</div>';
     }
     html += '</div>';
     if (q.exp){
@@ -690,6 +690,10 @@ function renderQText(s, tables){
     }
   }
   return html;
+}
+
+function renderOptText(s){
+  return esc(s).replace(/\n/g,'<br>').replace(/&lt;(\/?(?:em|strong))&gt;/g,'<$1>');
 }
 
 /* ── CT-AI EXAM ── */
