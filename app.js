@@ -157,7 +157,8 @@ function goTo(idx){
 
 function renderQuestion(){
   var q=questions[currentQ];
-  document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q;
+  var qPts=qPoints(q);
+  document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q+(qPts>1?' · '+qPts+' Points':'');
   document.getElementById('q-text').innerHTML=renderQText(q.q, q.tables);
   var ec=q.exp_count||1;
   var W=['','ONE','TWO','THREE','FOUR','FIVE'];
@@ -491,14 +492,17 @@ function submitAttemptToForm(att){
 }
 
 function showResults(){
-  var correct=0,wrong=0,unanswered=0;
+  var correct=0,wrong=0,unanswered=0,earned=0,total=0;
   for(var i=0;i<TOTAL_Q;i++){
+    var pts=qPoints(questions[i]);
+    total+=pts;
     var ans=userAnswers[i]||[];
     if(ans.length===0){unanswered++;continue;}
-    if(ans.slice().sort().join(',')===questions[i].correct.slice().sort().join(','))correct++;
-    else wrong++;
+    if(ans.slice().sort().join(',')===questions[i].correct.slice().sort().join(',')){
+      correct++; earned+=pts;
+    } else wrong++;
   }
-  var pct=Math.round(correct/TOTAL_Q*100);
+  var pct=Math.round(earned/total*100);
   var passed=pct>=65;
   var color=passed?'#22c55e':'#ef4444';
   var ring=document.getElementById('score-ring');
@@ -506,7 +510,8 @@ function showResults(){
   var sp=document.getElementById('score-pct');sp.textContent=pct+'%';sp.style.color=color;
   var vd=document.getElementById('verdict');
   vd.textContent=passed?'PASSED':'FAILED';vd.className='verdict '+(passed?'pass':'fail');
-  document.getElementById('result-sub').textContent='Pack #'+currentPack+' \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
+  var subText='Pack #'+currentPack+' \u00b7 '+earned+'/'+total+' points \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
+  document.getElementById('result-sub').textContent=subText;
   var autoBadge=document.getElementById('auto-submit-badge');
   if(autoBadge)autoBadge.style.display=_autoSubmitted?'':'none';
   _autoSubmitted=false;
@@ -523,6 +528,7 @@ function showResults(){
       pack: currentPack,
       correct: correct, wrong: wrong, unanswered: unanswered,
       total: TOTAL_Q, pct: pct, passed: passed,
+      earnedPoints: earned, totalPoints: total,
       userAnswers: userAnswers
     });
   }
@@ -564,7 +570,8 @@ function renderReviewCard(){
     whyNot=fullExp.substring(splitIdx+whyNotMatch[0].length).trim();
   }
 
-  var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+'</div>';
+  var rvPts=qPoints(q);
+  var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+(rvPts>1?' · '+rvPts+' Points':'')+'</div>';
   html+='<div class="rv-qtext">'+renderQText(q.q, q.tables)+'</div>';
   html+='<div class="rv-opts">';
   for(var i=0;i<q.opts.length;i++){
@@ -596,14 +603,17 @@ function reviewNav(dir){
 function downloadResultsPdf(){
   if (!questions || !questions.length) return;
   var u = loadUser() || {};
-  var correct=0,wrong=0,unanswered=0;
+  var correct=0,wrong=0,unanswered=0,earned=0,total=0;
   for(var i=0;i<TOTAL_Q;i++){
+    var pts=qPoints(questions[i]);
+    total+=pts;
     var ans=userAnswers[i]||[];
     if(ans.length===0){unanswered++;continue;}
-    if(ans.slice().sort().join(',')===questions[i].correct.slice().sort().join(','))correct++;
-    else wrong++;
+    if(ans.slice().sort().join(',')===questions[i].correct.slice().sort().join(',')){
+      correct++; earned+=pts;
+    } else wrong++;
   }
-  var pct=Math.round(correct/TOTAL_Q*100);
+  var pct=Math.round(earned/total*100);
   var passed=pct>=65;
   var fam = currentMode==='ctai' ? 'CT-AI' : currentMode==='ctfl' ? 'CTFL' : 'CT-GenAI';
   var examTitle = fam + ' Exam · Pack #' + currentPack;
@@ -628,7 +638,7 @@ function downloadResultsPdf(){
   html += '<div class="pdf-score-pct '+(passed?'pass':'fail')+'">'+pct+'%</div>';
   html += '<div class="pdf-score-meta">';
   html += '<div class="pdf-verdict '+(passed?'pass':'fail')+'">'+(passed?'PASSED':'FAILED')+'</div>';
-  html += '<div>'+correct+' correct &middot; '+wrong+' wrong &middot; '+unanswered+' unanswered (out of '+TOTAL_Q+')</div>';
+  html += '<div><b>'+earned+'/'+total+' points</b> &middot; '+correct+' correct &middot; '+wrong+' wrong &middot; '+unanswered+' unanswered (out of '+TOTAL_Q+')</div>';
   html += '<div style="font-size:11px;color:#666;">Pass mark: 65%</div>';
   html += '</div>';
   html += '</div>';
@@ -642,7 +652,8 @@ function downloadResultsPdf(){
 
     html += '<div class="pdf-q '+status+'">';
     html += '<div class="pdf-q-head">';
-    html += '<span class="pdf-q-num">Q'+(qi+1)+'</span>';
+    var pdfPts=qPoints(q);
+    html += '<span class="pdf-q-num">Q'+(qi+1)+(pdfPts>1?' · '+pdfPts+' Points':'')+'</span>';
     html += '<span class="pdf-q-status '+status+'">'+statusLabel+'</span>';
     html += '</div>';
     html += '<div class="pdf-q-text">'+renderQText(q.q, q.tables)+'</div>';
@@ -694,6 +705,13 @@ function renderQText(s, tables){
 
 function renderOptText(s){
   return esc(s).replace(/\n/g,'<br>').replace(/&lt;(\/?(?:em|strong))&gt;/g,'<$1>');
+}
+
+function qPoints(q){ return (q && q.points) || 1; }
+function totalPointsInPack(){
+  var s = 0;
+  for (var i=0;i<questions.length;i++) s += qPoints(questions[i]);
+  return s;
 }
 
 /* ── CT-AI EXAM ── */
