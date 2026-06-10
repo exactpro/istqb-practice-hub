@@ -158,7 +158,7 @@ function goTo(idx){
 function renderQuestion(){
   var q=questions[currentQ];
   var qPts=qPoints(q);
-  document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q+(qPts>1?' · '+qPts+' Points':'');
+  document.getElementById('q-num-lbl').textContent='Question '+(currentQ+1)+' of '+TOTAL_Q+' · '+qPts+' Point'+(qPts===1?'':'s');
   document.getElementById('q-text').innerHTML=renderQText(q.q, q.tables);
   var ec=q.exp_count||1;
   var W=['','ONE','TWO','THREE','FOUR','FIVE'];
@@ -571,7 +571,7 @@ function renderReviewCard(){
   }
 
   var rvPts=qPoints(q);
-  var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+(rvPts>1?' · '+rvPts+' Points':'')+'</div>';
+  var html='<div class="rv-qnum">Question '+(item.qi+1)+' of '+TOTAL_Q+' · '+rvPts+' Point'+(rvPts===1?'':'s')+'</div>';
   html+='<div class="rv-qtext">'+renderQText(q.q, q.tables)+'</div>';
   html+='<div class="rv-opts">';
   for(var i=0;i<q.opts.length;i++){
@@ -653,7 +653,7 @@ function downloadResultsPdf(){
     html += '<div class="pdf-q '+status+'">';
     html += '<div class="pdf-q-head">';
     var pdfPts=qPoints(q);
-    html += '<span class="pdf-q-num">Q'+(qi+1)+(pdfPts>1?' · '+pdfPts+' Points':'')+'</span>';
+    html += '<span class="pdf-q-num">Q'+(qi+1)+' · '+pdfPts+' Point'+(pdfPts===1?'':'s')+'</span>';
     html += '<span class="pdf-q-status '+status+'">'+statusLabel+'</span>';
     html += '</div>';
     html += '<div class="pdf-q-text">'+renderQText(q.q, q.tables)+'</div>';
