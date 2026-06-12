@@ -664,10 +664,17 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
   font-family:'Nunito',sans-serif;
   border-top:2px solid var(--border2);
 }
+.q-table.q-table-plain, .q-table.q-table-plain th, .q-table.q-table-plain td{
+  border:none;background:transparent;
+}
+.q-table.q-table-plain{font-family:'Nunito',sans-serif;font-size:15px;}
+.q-table.q-table-plain td{padding:1px 0;color:var(--text1);font-weight:700;}
+.q-table.q-table-plain td:first-child{padding-right:24px;white-space:nowrap;}
 @media print{
   .q-table{font-size:9.5pt;}
   .q-table th, .q-table td{border-color:#666;padding:4px 8px;}
   .q-table thead th, .q-table tbody th{background:#f0f0f0;}
+  .q-table.q-table-plain, .q-table.q-table-plain th, .q-table.q-table-plain td{border:none;background:transparent;}
 }
 
 /* ── BUTTON DISABLED STATE ── */
