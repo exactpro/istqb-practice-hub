@@ -454,7 +454,7 @@ function attemptFormFields(att){
 
   if (att.type === 'exam'){
     fields[ENTRY_ACTIVITY]   = 'Exam';
-    fields[ENTRY_FAMILY]     = att.mode === 'ctai' ? 'CT-AI' : att.mode === 'ctfl' ? 'CTFL' : 'CT-GenAI';
+    fields[ENTRY_FAMILY]     = att.mode === 'ctai' ? ('CT-AI v' + (att.ctaiVersion === 2 ? '2.0' : '1.0')) : att.mode === 'ctfl' ? 'CTFL' : 'CT-GenAI';
     fields[ENTRY_PACK_ROUND] = 'Pack #' + att.pack;
     fields[ENTRY_CORRECT]    = att.correct;
     fields[ENTRY_WRONG]      = att.wrong;
@@ -510,7 +510,8 @@ function showResults(){
   var sp=document.getElementById('score-pct');sp.textContent=pct+'%';sp.style.color=color;
   var vd=document.getElementById('verdict');
   vd.textContent=passed?'PASSED':'FAILED';vd.className='verdict '+(passed?'pass':'fail');
-  var subText='Pack #'+currentPack+' \u00b7 '+earned+'/'+total+' points \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
+  var resFam = currentMode==='ctai' ? ('CT-AI v' + (currentCtaiVersion===2?'2.0':'1.0')) : currentMode==='ctfl' ? 'CTFL' : 'CT-GenAI';
+  var subText=resFam+' \u00b7 Pack #'+currentPack+' \u00b7 '+earned+'/'+total+' points \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
   document.getElementById('result-sub').textContent=subText;
   var autoBadge=document.getElementById('auto-submit-badge');
   if(autoBadge)autoBadge.style.display=_autoSubmitted?'':'none';
@@ -526,6 +527,7 @@ function showResults(){
       type: 'exam',
       mode: currentMode,
       pack: currentPack,
+      ctaiVersion: (currentMode === 'ctai' ? currentCtaiVersion : undefined),
       correct: correct, wrong: wrong, unanswered: unanswered,
       total: TOTAL_Q, pct: pct, passed: passed,
       earnedPoints: earned, totalPoints: total,
@@ -616,6 +618,7 @@ function downloadResultsPdf(){
   var pct=Math.round(earned/total*100);
   var passed=pct>=65;
   var fam = currentMode==='ctai' ? 'CT-AI' : currentMode==='ctfl' ? 'CTFL' : 'CT-GenAI';
+  if (currentMode === 'ctai') fam += ' v' + (currentCtaiVersion === 2 ? '2.0' : '1.0');
   var examTitle = fam + ' Exam · Pack #' + currentPack;
   var now = new Date();
   var pad = function(n){ return n<10?'0'+n:''+n; };
@@ -723,15 +726,18 @@ startExam = function(pack) {
   _origStartExam(pack);
 };
 
-function startExamCtai(pack) {
+var currentCtaiVersion = 1;
+function startExamCtai(pack, version) {
   currentMode = 'ctai';
+  currentCtaiVersion = (version === 2) ? 2 : 1;
   currentPack = pack;
-  questions = CTAI_PACKS[String(pack)];
+  var pool = (currentCtaiVersion === 2) ? CTAI_PACKS_V2 : CTAI_PACKS;
+  questions = pool[String(pack)];
   userAnswers = {}; flagged = {}; currentQ = 0; secondsLeft = EXAM_SECS;
   _autoSubmitted=false;_oneMinuteWarned=false;
   if(_timesUpInterval){clearInterval(_timesUpInterval);_timesUpInterval=null;}
   clearInterval(timerInterval);
-  document.getElementById('exam-title').textContent = 'CT-AI \u2014 Pack #' + pack;
+  document.getElementById('exam-title').textContent = 'CT-AI v' + (currentCtaiVersion===2?'2.0':'1.0') + ' \u2014 Pack #' + pack;
   showScreen('screen-exam');
   buildNavGrid();
   renderQuestion();
@@ -761,12 +767,14 @@ doLeave = function() {
   closeModals();
   clearInterval(timerInterval);
   if (wasPendingProfile) { openProfile(); return; }
-  showScreen(currentMode === 'ctai' ? 'screen-ctai-home' : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home');
+  var ctaiHome = (currentCtaiVersion === 2) ? 'screen-ctai-home-v2' : 'screen-ctai-home';
+  showScreen(currentMode === 'ctai' ? ctaiHome : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home');
 };
 
 var _origDoSubmit = doSubmit;
 doSubmit = function() {
-  var backScreen = currentMode === 'ctai' ? 'screen-ctai-home' : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home';
+  var ctaiHomeSubmit = (currentCtaiVersion === 2) ? 'screen-ctai-home-v2' : 'screen-ctai-home';
+  var backScreen = currentMode === 'ctai' ? ctaiHomeSubmit : currentMode === 'ctfl' ? 'screen-ctfl-home' : 'screen-genai-home';
   var backBtn = document.getElementById('back-after-results');
   if (backBtn) backBtn.setAttribute('data-screen', backScreen);
   _origDoSubmit();
@@ -1230,6 +1238,7 @@ function formatAttemptDate(iso){
 function attemptLabel(att){
   if (att.type === 'exam') {
     var fam = att.mode === 'ctai' ? 'CT-AI' : att.mode === 'ctfl' ? 'CTFL' : 'CT-GenAI';
+    if (att.mode === 'ctai') fam += ' v' + (att.ctaiVersion === 2 ? '2.0' : '1.0');
     return fam + ' Exam · Pack #' + att.pack;
   }
   if (att.type === 'blitz') {
@@ -1292,7 +1301,9 @@ function reopenAttempt(id){
 
   currentMode = att.mode;
   currentPack = att.pack;
-  questions = (att.mode === 'ctai' ? CTAI_PACKS : att.mode === 'ctfl' ? CTFL_PACKS : PACKS)[String(att.pack)];
+  currentCtaiVersion = (att.mode === 'ctai' && att.ctaiVersion === 2) ? 2 : 1;
+  var ctaiPool = (currentCtaiVersion === 2) ? CTAI_PACKS_V2 : CTAI_PACKS;
+  questions = (att.mode === 'ctai' ? ctaiPool : att.mode === 'ctfl' ? CTFL_PACKS : PACKS)[String(att.pack)];
   if (!questions) return;
   userAnswers = att.userAnswers;
   _skipSaveAttempt = true;

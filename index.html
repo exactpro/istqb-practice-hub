@@ -27,11 +27,11 @@
       <div class="hub-tile-desc">Certified Tester Foundation Level</div>
       <span class="hub-tile-badge badge-active">1 pack available</span>
     </div>
-    <div class="hub-tile" onclick="showScreen('screen-ctai-home')">
+    <div class="hub-tile" onclick="showScreen('screen-ctai-version')">
       <div class="hub-tile-label">Specialist</div>
       <div class="hub-tile-name">CT-AI</div>
       <div class="hub-tile-desc">Certified Tester AI Testing</div>
-      <span class="hub-tile-badge badge-active">1 pack available</span>
+      <span class="hub-tile-badge badge-active">v 1.0 (1 pack) &bull; v 2.0 (1 pack)</span>
     </div>
     <div class="hub-tile" onclick="showScreen('screen-genai-home')">
       <div class="hub-tile-label">Specialist</div>
@@ -129,11 +129,35 @@
 </div>
 
 
-<!-- ══ CT-AI HOME ══ -->
-<div id="screen-ctai-home" class="screen">
+<!-- ══ CT-AI VERSION SELECT ══ -->
+<div id="screen-ctai-version" class="screen">
   <div class="page-header">
     <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; All exams</button>
     <div class="page-header-title">CT-AI Exam Simulator</div>
+  </div>
+  <div class="pack-section-label">Select a syllabus version:</div>
+  <div class="hub-grid" style="grid-template-columns:1fr 1fr;max-width:560px;">
+    <div class="hub-tile" onclick="showScreen('screen-ctai-home')">
+      <div class="hub-tile-label">Syllabus</div>
+      <div class="hub-tile-name">v1.0</div>
+      <div class="hub-tile-desc">CT-AI Certified Tester AI Testing</div>
+      <span class="hub-tile-badge badge-active">1 pack available</span>
+    </div>
+    <div class="hub-tile" onclick="showScreen('screen-ctai-home-v2')">
+      <div class="hub-tile-label">Syllabus</div>
+      <div class="hub-tile-name">v2.0</div>
+      <div class="hub-tile-desc">CT-AI Certified Tester AI Testing</div>
+      <span class="hub-tile-badge badge-active">1 pack available</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CT-AI HOME (v1.0) ══ -->
+<div id="screen-ctai-home" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-ctai-version')">&#8592; Versions</button>
+    <div class="page-header-title">CT-AI Exam Simulator &middot; Syllabus v1.0</div>
   </div>
   <div class="info-cards">
     <div class="info-card"><div class="val">40</div><div class="lbl">Questions per exam</div></div>
@@ -142,7 +166,25 @@
   </div>
   <div class="pack-section-label">Select an exam pack to begin:</div>
   <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
-    <div class="pack-card" onclick="startExamCtai(1)"><div class="pack-card-title">Pack #1</div></div>
+    <div class="pack-card" onclick="startExamCtai(1, 1)"><div class="pack-card-title">Pack #1</div></div>
+  </div>
+</div>
+
+
+<!-- ══ CT-AI HOME (v2.0) ══ -->
+<div id="screen-ctai-home-v2" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-ctai-version')">&#8592; Versions</button>
+    <div class="page-header-title">CT-AI Exam Simulator &middot; Syllabus v2.0</div>
+  </div>
+  <div class="info-cards">
+    <div class="info-card"><div class="val">40</div><div class="lbl">Questions per exam</div></div>
+    <div class="info-card"><div class="val">60 min</div><div class="lbl">Time limit</div></div>
+    <div class="info-card"><div class="val">65%</div><div class="lbl">Pass threshold</div></div>
+  </div>
+  <div class="pack-section-label">Select an exam pack to begin:</div>
+  <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
+    <div class="pack-card" onclick="startExamCtai(1, 2)"><div class="pack-card-title">Pack #1</div></div>
   </div>
 </div>
 
