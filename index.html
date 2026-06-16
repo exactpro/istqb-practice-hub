@@ -63,9 +63,9 @@
       <div class="hub-mini-tile-name">CTFL</div>
       <span class="hub-mini-tile-badge badge-active">200Q &middot; 10Q round</span>
     </div>
-    <div class="hub-mini-tile" onclick="startBlitz('ctai')">
+    <div class="hub-mini-tile" onclick="showScreen('screen-ctai-blitz-version')">
       <div class="hub-mini-tile-name">CT-AI</div>
-      <span class="hub-mini-tile-badge badge-active">200Q &middot; 10Q round</span>
+      <span class="hub-mini-tile-badge badge-active">v 1.0 (200Q) &bull; v 2.0 (200Q)</span>
     </div>
     <div class="hub-mini-tile" onclick="startBlitz('genai')">
       <div class="hub-mini-tile-name">GenAI</div>
@@ -125,6 +125,28 @@
   <div class="pack-section-label">Select an exam pack to begin:</div>
   <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
     <div class="pack-card" onclick="startExamCtfl(1)"><div class="pack-card-title">Pack #1</div></div>
+  </div>
+</div>
+
+
+<!-- ══ CT-AI BLITZ VERSION SELECT ══ -->
+<div id="screen-ctai-blitz-version" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; All exams</button>
+    <div class="page-header-title">CT-AI Lightning Round</div>
+  </div>
+  <div class="pack-section-label">Select a syllabus version:</div>
+  <div class="hub-grid" style="grid-template-columns:1fr 1fr;max-width:560px;">
+    <div class="hub-tile" onclick="startBlitz('ctai', 1)">
+      <div class="hub-tile-label">CT-AI Syllabus</div>
+      <div class="hub-tile-name">v1.0</div>
+      <span class="hub-tile-badge badge-active">10Q Round (200Q total)</span>
+    </div>
+    <div class="hub-tile" onclick="startBlitz('ctai', 2)">
+      <div class="hub-tile-label">CT-AI Syllabus</div>
+      <div class="hub-tile-name">v2.0</div>
+      <span class="hub-tile-badge badge-active">10Q Round (200Q total)</span>
+    </div>
   </div>
 </div>
 

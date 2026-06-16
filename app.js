@@ -1097,16 +1097,27 @@ var blitzQuestions=[];
 var blitzIdx=0;
 var blitzCorrect=0;
 var blitzCurrentPool='ctfl';
+var blitzCurrentCtaiVersion=1;
 var blitzAnswered=false;
 var blitzDetails=[];
 
-function startBlitz(pool){
+function startBlitz(pool, version){
   blitzCurrentPool=pool;
-  var src=pool==='ctfl'?CTFL_BLITZ:pool==='ctai'?CTAI_BLITZ:pool==='genai'?GENAI_BLITZ:[];
+  blitzCurrentCtaiVersion=(pool==='ctai' && version===2)?2:1;
+  var src;
+  if (pool==='ctfl') src=CTFL_BLITZ;
+  else if (pool==='ctai') src=(blitzCurrentCtaiVersion===2)?CTAI_BLITZ_V2:CTAI_BLITZ;
+  else if (pool==='genai') src=GENAI_BLITZ;
+  else src=[];
   blitzPool=src;
   var _src=src.slice();for(var _i=_src.length-1;_i>0;_i--){var _j=Math.floor(Math.random()*(_i+1));var _t=_src[_i];_src[_i]=_src[_j];_src[_j]=_t;}blitzQuestions=_src.slice(0,10);
   blitzIdx=0;blitzCorrect=0;blitzDetails=[];
-  document.getElementById('blitz-title').textContent=pool==='ctfl'?'CTFL Lightning Round':pool==='ctai'?'CT-AI Lightning Round':pool==='genai'?'GenAI Lightning Round':'Lightning Round';
+  var title;
+  if (pool==='ctfl') title='CTFL Lightning Round';
+  else if (pool==='ctai') title='CT-AI v'+(blitzCurrentCtaiVersion===2?'2.0':'1.0')+' Lightning Round';
+  else if (pool==='genai') title='GenAI Lightning Round';
+  else title='Lightning Round';
+  document.getElementById('blitz-title').textContent=title;
   showScreen('screen-blitz');
   blitzRenderQ();
 }
@@ -1168,6 +1179,7 @@ function blitzShowResults(){
   saveAttempt({
     type: 'blitz',
     pool: blitzCurrentPool,
+    ctaiVersion: (blitzCurrentPool==='ctai' ? blitzCurrentCtaiVersion : undefined),
     correct: blitzCorrect, total: 10, pct: pct, passed: pct>=65,
     details: blitzDetails.slice()
   });
@@ -1243,6 +1255,7 @@ function attemptLabel(att){
   }
   if (att.type === 'blitz') {
     var fam2 = att.pool === 'ctai' ? 'CT-AI' : att.pool === 'genai' ? 'GenAI' : 'CTFL';
+    if (att.pool === 'ctai') fam2 += ' v' + (att.ctaiVersion === 2 ? '2.0' : '1.0');
     return fam2 + ' Lightning Round';
   }
   if (att.type === 'glossary') {
@@ -1331,8 +1344,10 @@ function reopenBlitzAttempt(id){
   var att = findAttempt(id);
   if (!att || att.type !== 'blitz' || !att.details) return;
 
+  var rvFam = poolLabel(att.pool);
+  if (att.pool === 'ctai') rvFam += ' v' + (att.ctaiVersion === 2 ? '2.0' : '1.0');
   document.getElementById('blitz-review-title').textContent =
-    poolLabel(att.pool) + ' Lightning Round — review';
+    rvFam + ' Lightning Round — review';
   document.getElementById('blitz-review-meta').textContent =
     formatAttemptDate(att.date) + ' · ' + att.correct + '/' + att.total + ' correct · ' + att.pct + '%';
 
