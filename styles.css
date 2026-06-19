@@ -291,17 +291,101 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 }
 .hub-mx-col-card[data-topic="genai"]>*:not(.hub-mx-cat-genai){position:relative;z-index:1;}
 
-/* th2 cat peeking from bottom */
-.cat-th2-peek{
-  position:fixed;
-  left:max(24px, calc(50% - 100px));bottom:0;
-  width:140px;height:auto;
-  pointer-events:none;
-  z-index:5;
-  transform:translateY(8%);
-  display:none;
+/* ── JOIN THE GROUP BLOCK ── */
+.lg-block{
+  position:relative;
+  margin-top:32px;
+  border-radius:20px;
+  padding:36px 32px;
+  background:linear-gradient(135deg,#3a9aa5,#6ecbd2);
+  background-size:200% 200%;
+  animation:lgBgShift 12s ease-in-out infinite;
+  overflow:hidden;
+  box-shadow:0 6px 24px rgba(58,154,165,.25);
 }
-body:has(#screen-hub.active) .cat-th2-peek{display:block;}
+@keyframes lgBgShift{
+  0%{background-position:0% 0%;}
+  50%{background-position:100% 100%;}
+  100%{background-position:0% 0%;}
+}
+.lg-tags{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.lg-tag{
+  position:absolute;
+  font-family:'Nunito',sans-serif;
+  font-size:15px;font-weight:800;
+  color:rgba(255,255,255,.22);
+  letter-spacing:.03em;white-space:nowrap;user-select:none;
+  animation:lgTagFloat linear infinite;
+}
+@keyframes lgTagFloat{
+  0%{transform:translateY(0) rotate(var(--r));opacity:.22;}
+  50%{transform:translateY(var(--dy)) rotate(var(--r));opacity:.42;}
+  100%{transform:translateY(0) rotate(var(--r));opacity:.22;}
+}
+.lg-content{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  flex-wrap:wrap;
+}
+.lg-left{flex:1;min-width:240px;}
+.lg-heading{
+  font-family:'Nunito',sans-serif;
+  font-size:24px;font-weight:800;color:#fff;
+  line-height:1.25;margin:0 0 10px;
+}
+.lg-sub{
+  font-size:14px;color:rgba(255,255,255,.78);
+  line-height:1.6;max-width:380px;margin:0;
+}
+.lg-btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center;}
+.lg-btn-li,.lg-btn-fb{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+  padding:11px 22px;border-radius:6px;
+  text-decoration:none;white-space:nowrap;
+  transition:background .2s,transform .15s,box-shadow .2s,color .2s,border-color .2s;
+}
+.lg-btn-li{background:#0a66c2;color:#fff;animation:liBtnPulse 2.2s ease-in-out infinite;}
+.lg-btn-fb{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.30);}
+.lg-btn-li:hover{
+  background:#fff;color:#0a66c2;
+  transform:translateY(-2px);animation:none;
+  box-shadow:0 6px 20px rgba(10,102,194,.45);
+}
+.lg-btn-fb:hover{
+  background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.6);
+  transform:translateY(-2px);
+}
+@keyframes liBtnPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(10,102,194,.55);}
+  50%{box-shadow:0 0 0 10px rgba(10,102,194,0);}
+}
+.lg-cat-link{
+  position:relative;flex-shrink:0;
+  display:block;text-decoration:none;
+  width:100%;max-width:380px;
+}
+.lg-cat-link img{
+  width:100%;height:auto;display:block;
+  animation:catBob 3s ease-in-out infinite;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.25));
+  transition:filter .2s,transform .2s;
+}
+.lg-cat-link:hover img{
+  animation:none;
+  transform:translateY(-8px) scale(1.03);
+  filter:drop-shadow(0 14px 24px rgba(10,102,194,.5)) brightness(1.06);
+}
+@keyframes catBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@media (max-width:768px){
+  .lg-block{padding:28px 22px;}
+  .lg-heading{font-size:20px;}
+  .lg-content{flex-direction:column;text-align:center;gap:20px;}
+  .lg-left{min-width:0;}
+  .lg-sub{margin-left:auto;margin-right:auto;}
+  .lg-btns{justify-content:center;}
+  .lg-cat-link{max-width:260px;margin:0 auto;}
+}
 .hub-mx-row{display:contents;}
 .hub-mx-row:has(.hub-mx-section:hover) .hub-mx-cell{
   transform:translateY(-2px);
@@ -434,7 +518,6 @@ body:has(#screen-hub.active) .cat-th2-peek{display:block;}
   .hub-mobile-accordion{display:flex;}
   .hub-mobile-intro{display:flex;}
   .hub-mx-cat-genai{display:none;}
-  body:has(#screen-hub.active) .cat-th2-peek{display:none;}
   #screen-ctai-version .hub-grid,
   #screen-ctai-blitz-version .hub-grid{
     grid-template-columns:1fr !important;
