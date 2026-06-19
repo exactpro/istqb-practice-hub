@@ -513,6 +513,12 @@ function showResults(){
   var resFam = currentMode==='ctai' ? ('CT-AI v' + (currentCtaiVersion===2?'2.0':'1.0')) : currentMode==='ctfl' ? 'CTFL' : 'CT-GenAI';
   var subText=resFam+' \u00b7 Pack #'+currentPack+' \u00b7 '+earned+'/'+total+' points \u00b7 '+correct+'/'+TOTAL_Q+' correct \u00b7 Pass mark 65%';
   document.getElementById('result-sub').textContent=subText;
+  var topicIconEl = document.getElementById('results-topic-icon');
+  if (topicIconEl) {
+    var iconId = currentMode==='ctfl' ? '#lc-award' : currentMode==='ctai' ? '#lc-brain' : '#lc-sparkles';
+    topicIconEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="'+iconId+'"/></svg>';
+    topicIconEl.setAttribute('data-topic', currentMode);
+  }
   var autoBadge=document.getElementById('auto-submit-badge');
   if(autoBadge)autoBadge.style.display=_autoSubmitted?'':'none';
   _autoSubmitted=false;
@@ -796,6 +802,8 @@ function startGlossary(type) {
   var pool = (type === 'ctai' ? CTAI_GLOSSARY : type === 'genai' ? GENAI_GLOSSARY : GLOSSARY).slice();
   document.querySelector('#screen-glossary .page-header-title').textContent =
     type === 'ctai' ? 'CT-AI Glossary Practice' : type === 'genai' ? 'GenAI Glossary Practice' : 'CTFL Glossary Practice';
+  var glossHeader = document.getElementById('gloss-page-header');
+  if (glossHeader) glossHeader.setAttribute('data-topic', glossCurrentPool);
   for (var i = pool.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
@@ -1081,6 +1089,15 @@ function glossShowResults() {
   document.getElementById('gloss-final-detail').textContent =
     glossTotalCorrect + ' correct out of ' + glossTotalAttempts + ' total attempts';
   document.getElementById('gloss-progress').style.width = '100%';
+  var gTopic = glossCurrentPool;
+  var gIconId = gTopic==='ctfl' ? '#lc-award' : gTopic==='ctai' ? '#lc-brain' : '#lc-sparkles';
+  var gFam = gTopic==='ctfl' ? 'CTFL' : gTopic==='ctai' ? 'CT-AI' : 'GenAI';
+  var gIconEl = document.getElementById('gloss-results-topic-icon');
+  if (gIconEl) {
+    gIconEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="'+gIconId+'"/></svg>';
+    gIconEl.setAttribute('data-topic', gTopic);
+  }
+  document.getElementById('gloss-results-title-text').textContent = gFam + ' Glossary Practice';
   showScreen('screen-glossary-results');
   saveAttempt({
     type: 'glossary',
@@ -1118,6 +1135,8 @@ function startBlitz(pool, version){
   else if (pool==='genai') title='GenAI Lightning Round';
   else title='Lightning Round';
   document.getElementById('blitz-title').textContent=title;
+  var blitzHeader = document.getElementById('blitz-page-header');
+  if (blitzHeader) blitzHeader.setAttribute('data-topic', pool);
   showScreen('screen-blitz');
   blitzRenderQ();
 }
@@ -1175,6 +1194,15 @@ function blitzShowResults(){
   document.getElementById('blitz-final-detail').textContent=
     blitzCorrect+' correct out of 10 questions - '+(pct>=65?'Great work!':'Keep practising!');
   document.getElementById('blitz-progress').style.width='100%';
+  var bTopic = blitzCurrentPool;
+  var bIconId = bTopic==='ctfl' ? '#lc-award' : bTopic==='ctai' ? '#lc-brain' : '#lc-sparkles';
+  var bFam = bTopic==='ctfl' ? 'CTFL' : bTopic==='ctai' ? ('CT-AI v'+(blitzCurrentCtaiVersion===2?'2.0':'1.0')) : 'GenAI';
+  var bIconEl = document.getElementById('blitz-results-topic-icon');
+  if (bIconEl) {
+    bIconEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="'+bIconId+'"/></svg>';
+    bIconEl.setAttribute('data-topic', bTopic);
+  }
+  document.getElementById('blitz-results-title-text').textContent = bFam + ' Lightning Round';
   showScreen('screen-blitz-results');
   saveAttempt({
     type: 'blitz',
@@ -1292,7 +1320,11 @@ function renderProfile(){
       else if (a.type === 'blitz') onclickAttr = ' onclick="reopenBlitzAttempt(\''+a.id+'\')"';
       else if (a.type === 'glossary') onclickAttr = ' onclick="reopenGlossaryAttempt(\''+a.id+'\')"';
     }
-    html += '<div class="attempt-item'+(clickable?' clickable':'')+'"'+onclickAttr+'>'+
+    var attTopic = a.type === 'exam' ? a.mode : a.pool;
+    var attIconId = attTopic==='ctfl' ? '#lc-award' : attTopic==='ctai' ? '#lc-brain' : '#lc-sparkles';
+    var attIconHtml = '<span class="attempt-topic-icon" data-topic="'+attTopic+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="'+attIconId+'"/></svg></span>';
+    html += '<div class="attempt-item'+(clickable?' clickable':'')+'" data-topic="'+attTopic+'"'+onclickAttr+'>'+
+      attIconHtml+
       '<div class="attempt-meta">'+
         '<div class="attempt-type">'+esc(attemptLabel(a))+'</div>'+
         '<div class="attempt-date">'+esc(formatAttemptDate(a.date))+(a.type!=='glossary' ? ' · '+a.correct+'/'+a.total+' correct' : ' · '+a.correct+'/'+a.total+' attempts')+'</div>'+
