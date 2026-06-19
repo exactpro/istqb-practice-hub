@@ -58,6 +58,123 @@
     <div class="hub-title">ISTQB<sup class="tm">®</sup> Practice Hub</div>
     <div class="hub-sub">Realistic Mock Exams &middot; Glossary Practice &middot; Theory Lightning Rounds</div>
   </div>
+  <div class="hub-mobile-intro">
+    <div class="hub-mx-section">
+      <span class="hub-mx-row-icon"><svg><use href="#lc-notebook"/></svg></span>
+      <div>
+        <div class="hub-mx-row-name">Theory Materials</div>
+        <div class="hub-mx-row-desc">Videos, slides, and text to learn the syllabus</div>
+      </div>
+    </div>
+    <div class="hub-mx-section">
+      <span class="hub-mx-row-icon"><svg><use href="#lc-zap"/></svg></span>
+      <div>
+        <div class="hub-mx-row-name">Lightning Round</div>
+        <div class="hub-mx-row-desc">Quick true/false question rounds to test your recall</div>
+      </div>
+    </div>
+    <div class="hub-mx-section">
+      <span class="hub-mx-row-icon"><svg><use href="#lc-book"/></svg></span>
+      <div>
+        <div class="hub-mx-row-name">Glossary Practice</div>
+        <div class="hub-mx-row-desc">Drag-and-drop drills to lock in key terms</div>
+      </div>
+    </div>
+    <div class="hub-mx-section">
+      <span class="hub-mx-row-icon"><svg><use href="#lc-clipboard"/></svg></span>
+      <div>
+        <div class="hub-mx-row-name">Mock Exams</div>
+        <div class="hub-mx-row-desc">Timed, realistic exams to prep you for test day</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hub-mobile-accordion">
+    <details class="course-acc" data-topic="ctfl">
+      <summary class="course-acc-summary">
+        <div class="course-acc-text">
+          <div class="course-acc-name">CTFL</div>
+          <div class="course-acc-sub">Certified Tester Foundation Level</div>
+        </div>
+        <span class="course-acc-chevron">&#9662;</span>
+      </summary>
+      <div class="course-acc-body">
+        <div class="acc-link coming-soon">
+          <span class="acc-link-name">Theory Materials</span>
+          <span class="acc-badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="acc-link" onclick="startBlitz('ctfl')">
+          <span class="acc-link-name">Lightning Round</span>
+          <span class="acc-badge">200Q &middot; 10Q round</span>
+        </div>
+        <div class="acc-link" onclick="startGlossary()">
+          <span class="acc-link-name">Glossary Practice</span>
+          <span class="acc-badge">184 terms &middot; 5 rounds</span>
+        </div>
+        <div class="acc-link" onclick="showScreen('screen-ctfl-home')">
+          <span class="acc-link-name">Mock Exams</span>
+          <span class="acc-badge">1 pack available</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="course-acc" data-topic="ctai">
+      <summary class="course-acc-summary">
+        <div class="course-acc-text">
+          <div class="course-acc-name">CT-AI</div>
+          <div class="course-acc-sub">Certified Tester AI Testing</div>
+        </div>
+        <span class="course-acc-chevron">&#9662;</span>
+      </summary>
+      <div class="course-acc-body">
+        <div class="acc-link coming-soon">
+          <span class="acc-link-name">Theory Materials</span>
+          <span class="acc-badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="acc-link" onclick="showScreen('screen-ctai-blitz-version')">
+          <span class="acc-link-name">Lightning Round</span>
+          <span class="acc-badge">v1.0 (200Q) &bull; v2.0 (200Q)</span>
+        </div>
+        <div class="acc-link" onclick="startGlossary('ctai')">
+          <span class="acc-link-name">Glossary Practice</span>
+          <span class="acc-badge">223 terms &middot; 5 rounds</span>
+        </div>
+        <div class="acc-link" onclick="showScreen('screen-ctai-version')">
+          <span class="acc-link-name">Mock Exams</span>
+          <span class="acc-badge">v1.0 (1 pack) &bull; v2.0 (1 pack)</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="course-acc" data-topic="genai">
+      <summary class="course-acc-summary">
+        <div class="course-acc-text">
+          <div class="course-acc-name">CT-GenAI</div>
+          <div class="course-acc-sub">Certified Tester Generative AI</div>
+        </div>
+        <span class="course-acc-chevron">&#9662;</span>
+      </summary>
+      <div class="course-acc-body">
+        <div class="acc-link coming-soon">
+          <span class="acc-link-name">Theory Materials</span>
+          <span class="acc-badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="acc-link" onclick="startBlitz('genai')">
+          <span class="acc-link-name">Lightning Round</span>
+          <span class="acc-badge">150Q &middot; 10Q round</span>
+        </div>
+        <div class="acc-link" onclick="startGlossary('genai')">
+          <span class="acc-link-name">Glossary Practice</span>
+          <span class="acc-badge">57 terms &middot; 5 rounds</span>
+        </div>
+        <div class="acc-link" onclick="showScreen('screen-genai-home')">
+          <span class="acc-link-name">Mock Exams</span>
+          <span class="acc-badge">1 pack available</span>
+        </div>
+      </div>
+    </details>
+  </div>
+
   <div class="hub-matrix">
 
     <!-- Lucide icon library (inline SVG <symbol>) -->
@@ -109,32 +226,17 @@
 
     <div class="hub-mx-corner"></div>
     <div class="hub-mx-col-card" data-topic="ctfl">
-      <div class="hub-mx-col-card-top">
-        <span class="hub-mx-col-card-label">Foundation</span>
-      </div>
-      <div class="hub-mx-col-card-icon"><svg><use href="#lc-award"/></svg></div>
       <div class="hub-mx-col-card-name">CTFL</div>
       <div class="hub-mx-col-card-desc">Certified Tester Foundation Level</div>
-      <span class="hub-mx-col-card-badge">&bull; 1 pack available</span>
     </div>
     <div class="hub-mx-col-card" data-topic="ctai">
-      <div class="hub-mx-col-card-top">
-        <span class="hub-mx-col-card-label">Specialist</span>
-      </div>
-      <div class="hub-mx-col-card-icon"><svg><use href="#lc-brain"/></svg></div>
       <div class="hub-mx-col-card-name">CT-AI</div>
       <div class="hub-mx-col-card-desc">Certified Tester AI Testing</div>
-      <span class="hub-mx-col-card-badge">&bull; v1.0 (1 pack) &bull; v2.0 (1 pack)</span>
     </div>
     <div class="hub-mx-col-card" data-topic="genai">
       <img class="hub-mx-cat-genai" src="images/GenAIDesignWebsite-08.png" alt="">
-      <div class="hub-mx-col-card-top">
-        <span class="hub-mx-col-card-label">Specialist</span>
-      </div>
-      <div class="hub-mx-col-card-icon"><svg><use href="#lc-sparkles"/></svg></div>
       <div class="hub-mx-col-card-name">CT-GenAI</div>
       <div class="hub-mx-col-card-desc">Certified Tester Generative AI</div>
-      <span class="hub-mx-col-card-badge">&bull; 1 pack available</span>
     </div>
 
     <div class="hub-mx-row">
@@ -146,15 +248,15 @@
       </div>
     </div>
     <div class="hub-mx-cell coming-soon" data-topic="ctfl">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-notebook"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
     </div>
     <div class="hub-mx-cell coming-soon" data-topic="ctai">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-notebook"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
     </div>
     <div class="hub-mx-cell coming-soon" data-topic="genai">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-notebook"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
     </div>
     </div>
@@ -168,18 +270,18 @@
       </div>
     </div>
     <div class="hub-mx-cell" data-topic="ctfl" onclick="startBlitz('ctfl')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-zap"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">200Q &middot; 10Q round</span>
     </div>
     <div class="hub-mx-cell" data-topic="ctai" onclick="showScreen('screen-ctai-blitz-version')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-zap"/></svg></span>
+
       <span class="hub-mx-cell-badge-pair">
         <span class="hub-mx-cell-badge badge-active">v 1.0 (200Q)</span>
         <span class="hub-mx-cell-badge badge-active">v 2.0 (200Q)</span>
       </span>
     </div>
     <div class="hub-mx-cell" data-topic="genai" onclick="startBlitz('genai')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-zap"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">150Q &middot; 10Q round</span>
     </div>
     </div>
@@ -193,15 +295,15 @@
       </div>
     </div>
     <div class="hub-mx-cell" data-topic="ctfl" onclick="startGlossary()">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-book"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">184 terms &middot; 5 rounds</span>
     </div>
     <div class="hub-mx-cell" data-topic="ctai" onclick="startGlossary('ctai')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-book"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">223 terms &middot; 5 rounds</span>
     </div>
     <div class="hub-mx-cell" data-topic="genai" onclick="startGlossary('genai')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-book"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">57 terms &middot; 5 rounds</span>
     </div>
     </div>
@@ -215,18 +317,18 @@
       </div>
     </div>
     <div class="hub-mx-cell" data-topic="ctfl" onclick="showScreen('screen-ctfl-home')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-clipboard"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">1 pack available</span>
     </div>
     <div class="hub-mx-cell" data-topic="ctai" onclick="showScreen('screen-ctai-version')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-clipboard"/></svg></span>
+
       <span class="hub-mx-cell-badge-pair">
         <span class="hub-mx-cell-badge badge-active">v 1.0 (1 pack)</span>
         <span class="hub-mx-cell-badge badge-active">v 2.0 (1 pack)</span>
       </span>
     </div>
     <div class="hub-mx-cell" data-topic="genai" onclick="showScreen('screen-genai-home')">
-      <span class="hub-mx-cell-icon"><svg><use href="#lc-clipboard"/></svg></span>
+
       <span class="hub-mx-cell-badge badge-active">1 pack available</span>
     </div>
     </div>
@@ -300,12 +402,12 @@
     <div class="hub-tile" data-topic="ctai" onclick="startBlitz('ctai', 1)">
       <div class="hub-tile-label">CT-AI Syllabus</div>
       <div class="hub-tile-name">v1.0</div>
-      <span class="hub-tile-badge badge-active">10Q Round (200Q total)</span>
+      <span class="hub-tile-badge badge-active hub-tile-badge-multiline">10Q Round<br>(200Q total)</span>
     </div>
     <div class="hub-tile" data-topic="ctai" onclick="startBlitz('ctai', 2)">
       <div class="hub-tile-label">CT-AI Syllabus</div>
       <div class="hub-tile-name">v2.0</div>
-      <span class="hub-tile-badge badge-active">10Q Round (200Q total)</span>
+      <span class="hub-tile-badge badge-active hub-tile-badge-multiline">10Q Round<br>(200Q total)</span>
     </div>
   </div>
 </div>
