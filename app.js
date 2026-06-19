@@ -12,20 +12,43 @@ var reviewList=[];
 var reviewIdx=0;
 
 /* ── THEME ── */
+var LS_THEME = 'quizhub_theme';
 var darkMode = false;
+try { darkMode = localStorage.getItem(LS_THEME) === 'dark'; } catch(e){}
+if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
 function toggleTheme(){
   darkMode=!darkMode;
   document.documentElement.setAttribute('data-theme', darkMode?'dark':'light');
   document.getElementById('theme-toggle').textContent = darkMode?'🌙':'☀️';
+  try { localStorage.setItem(LS_THEME, darkMode?'dark':'light'); } catch(e){}
 }
+window.addEventListener('DOMContentLoaded', function(){
+  var btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = darkMode?'🌙':'☀️';
+});
 
 /* ── SCREENS ── */
+var LS_SCREEN = 'quizhub_last_screen';
+var PERSIST_SCREENS = ['screen-hub','screen-ctfl-home','screen-ctai-version','screen-ctai-home','screen-ctai-home-v2','screen-ctai-blitz-version','screen-genai-home','screen-profile'];
 function showScreen(id){
   var ss=document.querySelectorAll('.screen');
   for(var s=0;s<ss.length;s++) ss[s].classList.remove('active');
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  try {
+    if (PERSIST_SCREENS.indexOf(id) >= 0) localStorage.setItem(LS_SCREEN, id);
+    else localStorage.removeItem(LS_SCREEN);
+  } catch(e){}
 }
+window.addEventListener('DOMContentLoaded', function(){
+  try {
+    var saved = localStorage.getItem(LS_SCREEN);
+    if (saved && PERSIST_SCREENS.indexOf(saved) >= 0 && document.getElementById(saved)) {
+      if (saved === 'screen-profile') openProfile();
+      else showScreen(saved);
+    }
+  } catch(e){}
+});
 
 function showComingSoon(name){
   document.getElementById('coming-soon-title').textContent=name+' — Coming soon';
