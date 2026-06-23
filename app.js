@@ -29,23 +29,52 @@ window.addEventListener('DOMContentLoaded', function(){
 
 /* ── SCREENS ── */
 var LS_SCREEN = 'quizhub_last_screen';
+var LS_LAST_ATT = 'quizhub_last_screen_att';
 var PERSIST_SCREENS = ['screen-hub','screen-ctfl-home','screen-ctai-version','screen-ctai-home','screen-ctai-home-v2','screen-ctai-blitz-version','screen-genai-home','screen-profile'];
+var REVIEW_SCREENS = ['screen-results','screen-blitz-review','screen-glossary-review','screen-blitz-results','screen-glossary-results'];
 function showScreen(id){
   var ss=document.querySelectorAll('.screen');
   for(var s=0;s<ss.length;s++) ss[s].classList.remove('active');
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   try {
-    if (PERSIST_SCREENS.indexOf(id) >= 0) localStorage.setItem(LS_SCREEN, id);
-    else localStorage.removeItem(LS_SCREEN);
+    if (PERSIST_SCREENS.indexOf(id) >= 0) {
+      localStorage.setItem(LS_SCREEN, id);
+      localStorage.removeItem(LS_LAST_ATT);
+    } else if (REVIEW_SCREENS.indexOf(id) >= 0 && lastAttemptId) {
+      localStorage.setItem(LS_SCREEN, id);
+      localStorage.setItem(LS_LAST_ATT, lastAttemptId);
+    } else {
+      localStorage.removeItem(LS_SCREEN);
+      localStorage.removeItem(LS_LAST_ATT);
+    }
   } catch(e){}
 }
+var LIVE_SCREENS = ['screen-exam','screen-blitz','screen-glossary'];
+window.addEventListener('beforeunload', function(e){
+  for (var i=0;i<LIVE_SCREENS.length;i++){
+    var el = document.getElementById(LIVE_SCREENS[i]);
+    if (el && el.classList.contains('active')){
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  }
+});
 window.addEventListener('DOMContentLoaded', function(){
   try {
     var saved = localStorage.getItem(LS_SCREEN);
-    if (saved && PERSIST_SCREENS.indexOf(saved) >= 0 && document.getElementById(saved)) {
+    if (!saved || !document.getElementById(saved)) return;
+    if (PERSIST_SCREENS.indexOf(saved) >= 0) {
       if (saved === 'screen-profile') openProfile();
       else showScreen(saved);
+    } else if (REVIEW_SCREENS.indexOf(saved) >= 0) {
+      var attId = localStorage.getItem(LS_LAST_ATT);
+      if (!attId) return;
+      lastAttemptId = attId;
+      if (saved === 'screen-results') reopenAttempt(attId);
+      else if (saved === 'screen-blitz-review' || saved === 'screen-blitz-results') reopenBlitzAttempt(attId);
+      else if (saved === 'screen-glossary-review' || saved === 'screen-glossary-results') reopenGlossaryAttempt(attId);
     }
   } catch(e){}
 });
@@ -550,7 +579,6 @@ function showResults(){
   document.getElementById('stat-unanswered').textContent=unanswered;
   document.getElementById('review-filter').value='all';
   applyFilter();
-  showScreen('screen-results');
   if (!_skipSaveAttempt) {
     saveAttempt({
       type: 'exam',
@@ -564,6 +592,7 @@ function showResults(){
     });
   }
   _skipSaveAttempt = false;
+  showScreen('screen-results');
 }
 
 /* ── REVIEW ── */
@@ -1121,13 +1150,13 @@ function glossShowResults() {
     gIconEl.setAttribute('data-topic', gTopic);
   }
   document.getElementById('gloss-results-title-text').textContent = gFam + ' Glossary Practice';
-  showScreen('screen-glossary-results');
   saveAttempt({
     type: 'glossary',
     pool: glossCurrentPool,
     correct: glossTotalCorrect, total: glossTotalAttempts, pct: pct,
     details: glossDetails.slice()
   });
+  showScreen('screen-glossary-results');
 }
 
 
@@ -1226,7 +1255,6 @@ function blitzShowResults(){
     bIconEl.setAttribute('data-topic', bTopic);
   }
   document.getElementById('blitz-results-title-text').textContent = bFam + ' Lightning Round';
-  showScreen('screen-blitz-results');
   saveAttempt({
     type: 'blitz',
     pool: blitzCurrentPool,
@@ -1234,6 +1262,7 @@ function blitzShowResults(){
     correct: blitzCorrect, total: 10, pct: pct, passed: pct>=65,
     details: blitzDetails.slice()
   });
+  showScreen('screen-blitz-results');
 }
 
 /* ── PROFILE & PERSISTENCE ── */
@@ -1374,6 +1403,7 @@ function reopenAttempt(id){
   questions = (att.mode === 'ctai' ? ctaiPool : att.mode === 'ctfl' ? CTFL_PACKS : PACKS)[String(att.pack)];
   if (!questions) return;
   userAnswers = att.userAnswers;
+  lastAttemptId = id;
   _skipSaveAttempt = true;
   showResults();
 }
@@ -1398,6 +1428,7 @@ function poolLabel(pool){
 function reopenBlitzAttempt(id){
   var att = findAttempt(id);
   if (!att || att.type !== 'blitz' || !att.details) return;
+  lastAttemptId = id;
 
   var rvFam = poolLabel(att.pool);
   if (att.pool === 'ctai') rvFam += ' v' + (att.ctaiVersion === 2 ? '2.0' : '1.0');
@@ -1432,6 +1463,7 @@ var _glossReviewMaxRound = 5;
 function reopenGlossaryAttempt(id){
   var att = findAttempt(id);
   if (!att || att.type !== 'glossary' || !att.details) return;
+  lastAttemptId = id;
 
   document.getElementById('gloss-review-title').textContent =
     poolLabel(att.pool) + ' Glossary Practice — review';

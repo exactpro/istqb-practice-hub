@@ -161,16 +161,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 .attempt-item[data-topic="ctfl"].clickable:hover{border-color:var(--topic-ctfl);}
 .attempt-item[data-topic="ctai"].clickable:hover{border-color:var(--topic-ctai);}
 .attempt-item[data-topic="genai"].clickable:hover{border-color:var(--topic-genai);}
-.attempt-topic-icon{
-  flex-shrink:0;
-  width:36px;height:36px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--surface2);
-}
-.attempt-topic-icon svg{width:20px;height:20px;}
-.attempt-topic-icon[data-topic="ctfl"]{color:var(--topic-ctfl);}
-.attempt-topic-icon[data-topic="ctai"]{color:var(--topic-ctai-deep);}
-.attempt-topic-icon[data-topic="genai"]{color:var(--topic-genai-deep);}
+.attempt-topic-icon{display:none;}
 .attempt-meta{flex:1;min-width:0;}
 .attempt-type{
   font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
@@ -1062,10 +1053,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
   line-height:1.2;
   display:flex;align-items:center;justify-content:center;gap:12px;
 }
-.results-topic-icon{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:32px;height:32px;flex-shrink:0;
-}
+.results-topic-icon{display:none;}
 .results-topic-icon svg{width:100%;height:100%;}
 .results-topic-icon[data-topic="ctfl"]{color:var(--topic-ctfl);}
 .results-topic-icon[data-topic="ctai"]{color:var(--topic-ctai-deep);}
