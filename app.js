@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', function(){
 /* ── SCREENS ── */
 var LS_SCREEN = 'quizhub_last_screen';
 var LS_LAST_ATT = 'quizhub_last_screen_att';
-var PERSIST_SCREENS = ['screen-hub','screen-ctfl-home','screen-ctai-version','screen-ctai-home','screen-ctai-home-v2','screen-ctai-blitz-version','screen-genai-home','screen-profile'];
+var PERSIST_SCREENS = ['screen-hub','screen-ctfl-home','screen-ctai-version','screen-ctai-home','screen-ctai-home-v2','screen-ctai-blitz-version','screen-genai-home','screen-profile','screen-ctfl-theory','screen-ctai-theory','screen-genai-theory'];
 var REVIEW_SCREENS = ['screen-results','screen-blitz-review','screen-glossary-review','screen-blitz-results','screen-glossary-results'];
 function showScreen(id){
   var ss=document.querySelectorAll('.screen');

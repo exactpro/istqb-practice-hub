@@ -100,9 +100,12 @@
         <span class="course-acc-chevron">&#9662;</span>
       </summary>
       <div class="course-acc-body">
-        <div class="acc-link coming-soon">
+        <div class="acc-link" onclick="showScreen('screen-ctfl-theory')">
           <span class="acc-link-name">Theory Materials</span>
-          <span class="acc-badge badge-soon">Coming Soon</span>
+          <span class="hub-mx-cell-badge-pair">
+            <span class="acc-badge">v 3.1</span>
+            <span class="acc-badge">v 4.1</span>
+          </span>
         </div>
         <div class="acc-link" onclick="startBlitz('ctfl')">
           <span class="acc-link-name">Lightning Round</span>
@@ -128,9 +131,9 @@
         <span class="course-acc-chevron">&#9662;</span>
       </summary>
       <div class="course-acc-body">
-        <div class="acc-link coming-soon">
+        <div class="acc-link" onclick="showScreen('screen-ctai-theory')">
           <span class="acc-link-name">Theory Materials</span>
-          <span class="acc-badge badge-soon">Coming Soon</span>
+          <span class="acc-badge">v 1.0</span>
         </div>
         <div class="acc-link" onclick="showScreen('screen-ctai-blitz-version')">
           <span class="acc-link-name">Lightning Round</span>
@@ -156,9 +159,9 @@
         <span class="course-acc-chevron">&#9662;</span>
       </summary>
       <div class="course-acc-body">
-        <div class="acc-link coming-soon">
+        <div class="acc-link" onclick="showScreen('screen-genai-theory')">
           <span class="acc-link-name">Theory Materials</span>
-          <span class="acc-badge badge-soon">Coming Soon</span>
+          <span class="acc-badge">v 1.0</span>
         </div>
         <div class="acc-link" onclick="startBlitz('genai')">
           <span class="acc-link-name">Lightning Round</span>
@@ -222,6 +225,9 @@
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </symbol>
+        <symbol id="lc-youtube" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </symbol>
       </defs>
     </svg>
 
@@ -248,17 +254,19 @@
         <div class="hub-mx-row-desc">Videos, slides, and text to learn the syllabus</div>
       </div>
     </div>
-    <div class="hub-mx-cell coming-soon" data-topic="ctfl">
-
-      <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
+    <div class="hub-mx-cell" data-topic="ctfl" onclick="showScreen('screen-ctfl-theory')">
+      <span class="hub-mx-cell-badge-pair">
+        <span class="hub-mx-cell-badge badge-active">v 3.1</span>
+        <span class="hub-mx-cell-badge badge-active">v 4.1</span>
+      </span>
     </div>
-    <div class="hub-mx-cell coming-soon" data-topic="ctai">
+    <div class="hub-mx-cell" data-topic="ctai" onclick="showScreen('screen-ctai-theory')">
 
-      <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
+      <span class="hub-mx-cell-badge badge-active">v 1.0</span>
     </div>
-    <div class="hub-mx-cell coming-soon" data-topic="genai">
+    <div class="hub-mx-cell" data-topic="genai" onclick="showScreen('screen-genai-theory')">
 
-      <span class="hub-mx-cell-badge badge-soon">Coming Soon</span>
+      <span class="hub-mx-cell-badge badge-active">v 1.0</span>
     </div>
     </div>
 
@@ -422,6 +430,62 @@
   <div class="pack-section-label">Select an exam pack to begin:</div>
   <div class="pack-grid" style="grid-template-columns:1fr;max-width:220px;">
     <div class="pack-card" onclick="startExamCtfl(1)"><div class="pack-card-title">Pack #1</div></div>
+  </div>
+</div>
+
+
+<!-- ══ CTFL THEORY ══ -->
+<div id="screen-ctfl-theory" class="screen">
+  <div class="page-header" data-topic="ctfl">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; Hub</button>
+    <div class="page-header-title">CTFL Theory Materials</div>
+  </div>
+  <div class="pack-section-label">Select a syllabus version:</div>
+  <div class="hub-grid" style="grid-template-columns:1fr 1fr;max-width:560px;">
+    <div class="hub-tile" data-topic="ctfl" onclick="window.open('https://www.youtube.com/playlist?list=PL8Ql2_5rYPjhwj1JP8ivvDGHrZXiJzogy','_blank','noopener')">
+      <div class="hub-tile-label">CTFL Syllabus</div>
+      <div class="hub-tile-name">v3.1</div>
+      <span class="hub-tile-badge youtube-badge"><svg class="yt-icon" viewBox="0 0 24 24"><use href="#lc-youtube"/></svg>Watch on YouTube</span>
+    </div>
+    <div class="hub-tile" data-topic="ctfl" onclick="window.open('https://youtube.com/playlist?list=PL8Ql2_5rYPjiQEckN_sN09ecPyYSrWz1o','_blank','noopener')">
+      <div class="hub-tile-label">CTFL Syllabus</div>
+      <div class="hub-tile-name">v4.1</div>
+      <span class="hub-tile-badge youtube-badge"><svg class="yt-icon" viewBox="0 0 24 24"><use href="#lc-youtube"/></svg>Watch on YouTube</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CT-AI THEORY ══ -->
+<div id="screen-ctai-theory" class="screen">
+  <div class="page-header" data-topic="ctai">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; Hub</button>
+    <div class="page-header-title">CT-AI Theory Materials</div>
+  </div>
+  <div class="pack-section-label">Select a syllabus version:</div>
+  <div class="hub-grid" style="grid-template-columns:1fr;max-width:280px;">
+    <div class="hub-tile" data-topic="ctai" onclick="window.open('https://www.youtube.com/playlist?list=PL8Ql2_5rYPjgK0HDswJeqpATbOJ7xaGkR','_blank','noopener')">
+      <div class="hub-tile-label">CT-AI Syllabus</div>
+      <div class="hub-tile-name">v1.0</div>
+      <span class="hub-tile-badge youtube-badge"><svg class="yt-icon" viewBox="0 0 24 24"><use href="#lc-youtube"/></svg>Watch on YouTube</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CT-GenAI THEORY ══ -->
+<div id="screen-genai-theory" class="screen">
+  <div class="page-header" data-topic="genai">
+    <button class="back-btn" onclick="showScreen('screen-hub')">&#8592; Hub</button>
+    <div class="page-header-title">CT-GenAI Theory Materials</div>
+  </div>
+  <div class="pack-section-label">Select a syllabus version:</div>
+  <div class="hub-grid" style="grid-template-columns:1fr;max-width:280px;">
+    <div class="hub-tile" data-topic="genai" onclick="window.open('https://youtube.com/playlist?list=PL8Ql2_5rYPjhr3d0BNpxoTeWK4ZypVxVI','_blank','noopener')">
+      <div class="hub-tile-label">CT-GenAI Syllabus</div>
+      <div class="hub-tile-name">v1.0</div>
+      <span class="hub-tile-badge youtube-badge"><svg class="yt-icon" viewBox="0 0 24 24"><use href="#lc-youtube"/></svg>Watch on YouTube</span>
+    </div>
   </div>
 </div>
 

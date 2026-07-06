@@ -215,6 +215,19 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text1
 .hub-tile-desc{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
 .hub-tile-badge{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
 .hub-tile-badge-multiline{border-radius:12px;line-height:1.35;text-align:center;white-space:normal;}
+.hub-tile-badge.youtube-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,0,0,.10);color:#c00;
+  padding:5px 12px;
+}
+#screen-ctfl-theory .hub-tile-label,
+#screen-ctai-theory .hub-tile-label,
+#screen-genai-theory .hub-tile-label,
+#screen-ctai-version .hub-tile-label,
+#screen-ctai-blitz-version .hub-tile-label{display:none;}
+.hub-tile-badge.youtube-badge .yt-icon{width:16px;height:16px;fill:#ff0000;flex-shrink:0;}
+[data-theme="dark"] .hub-tile-badge.youtube-badge{background:rgba(255,0,0,.15);color:#ff6b6b;}
+[data-theme="dark"] .hub-tile-badge.youtube-badge .yt-icon{fill:#ff4d4d;}
 .hub-tile[data-topic="ctfl"] .hub-tile-badge{background:var(--topic-ctfl-tint);color:var(--topic-ctfl);}
 .hub-tile[data-topic="ctai"] .hub-tile-badge{background:var(--topic-ctai-tint);color:var(--topic-ctai-deep);}
 .hub-tile[data-topic="genai"] .hub-tile-badge{background:var(--topic-genai-tint);color:var(--topic-genai-deep);}
